@@ -1,0 +1,392 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - lib/math/prime_numbers.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">lib/math</a> - prime_numbers.c<span style="font-size: 80%;"> (source / <a href="prime_numbers.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">92</td>
+            <td class="headerCovTableEntryLo">42.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-07-19 18:55:55</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // SPDX-License-Identifier: GPL-2.0-only</a>
+<a name="2"><span class="lineNum">       2 </span>            : #define pr_fmt(fmt) &quot;prime numbers: &quot; fmt</a>
+<a name="3"><span class="lineNum">       3 </span>            : </a>
+<a name="4"><span class="lineNum">       4 </span>            : #include &lt;linux/module.h&gt;</a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &lt;linux/mutex.h&gt;</a>
+<a name="6"><span class="lineNum">       6 </span>            : #include &lt;linux/prime_numbers.h&gt;</a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &lt;linux/slab.h&gt;</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #define bitmap_size(nbits) (BITS_TO_LONGS(nbits) * sizeof(unsigned long))</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : struct primes {</a>
+<a name="12"><span class="lineNum">      12 </span>            :         struct rcu_head rcu;</a>
+<a name="13"><span class="lineNum">      13 </span>            :         unsigned long last, sz;</a>
+<a name="14"><span class="lineNum">      14 </span>            :         unsigned long primes[];</a>
+<a name="15"><span class="lineNum">      15 </span>            : };</a>
+<a name="16"><span class="lineNum">      16 </span>            : </a>
+<a name="17"><span class="lineNum">      17 </span>            : #if BITS_PER_LONG == 64</a>
+<a name="18"><span class="lineNum">      18 </span>            : static const struct primes small_primes = {</a>
+<a name="19"><span class="lineNum">      19 </span>            :         .last = 61,</a>
+<a name="20"><span class="lineNum">      20 </span>            :         .sz = 64,</a>
+<a name="21"><span class="lineNum">      21 </span>            :         .primes = {</a>
+<a name="22"><span class="lineNum">      22 </span>            :                 BIT(2) |</a>
+<a name="23"><span class="lineNum">      23 </span>            :                 BIT(3) |</a>
+<a name="24"><span class="lineNum">      24 </span>            :                 BIT(5) |</a>
+<a name="25"><span class="lineNum">      25 </span>            :                 BIT(7) |</a>
+<a name="26"><span class="lineNum">      26 </span>            :                 BIT(11) |</a>
+<a name="27"><span class="lineNum">      27 </span>            :                 BIT(13) |</a>
+<a name="28"><span class="lineNum">      28 </span>            :                 BIT(17) |</a>
+<a name="29"><span class="lineNum">      29 </span>            :                 BIT(19) |</a>
+<a name="30"><span class="lineNum">      30 </span>            :                 BIT(23) |</a>
+<a name="31"><span class="lineNum">      31 </span>            :                 BIT(29) |</a>
+<a name="32"><span class="lineNum">      32 </span>            :                 BIT(31) |</a>
+<a name="33"><span class="lineNum">      33 </span>            :                 BIT(37) |</a>
+<a name="34"><span class="lineNum">      34 </span>            :                 BIT(41) |</a>
+<a name="35"><span class="lineNum">      35 </span>            :                 BIT(43) |</a>
+<a name="36"><span class="lineNum">      36 </span>            :                 BIT(47) |</a>
+<a name="37"><span class="lineNum">      37 </span>            :                 BIT(53) |</a>
+<a name="38"><span class="lineNum">      38 </span>            :                 BIT(59) |</a>
+<a name="39"><span class="lineNum">      39 </span>            :                 BIT(61)</a>
+<a name="40"><span class="lineNum">      40 </span>            :         }</a>
+<a name="41"><span class="lineNum">      41 </span>            : };</a>
+<a name="42"><span class="lineNum">      42 </span>            : #elif BITS_PER_LONG == 32</a>
+<a name="43"><span class="lineNum">      43 </span>            : static const struct primes small_primes = {</a>
+<a name="44"><span class="lineNum">      44 </span>            :         .last = 31,</a>
+<a name="45"><span class="lineNum">      45 </span>            :         .sz = 32,</a>
+<a name="46"><span class="lineNum">      46 </span>            :         .primes = {</a>
+<a name="47"><span class="lineNum">      47 </span>            :                 BIT(2) |</a>
+<a name="48"><span class="lineNum">      48 </span>            :                 BIT(3) |</a>
+<a name="49"><span class="lineNum">      49 </span>            :                 BIT(5) |</a>
+<a name="50"><span class="lineNum">      50 </span>            :                 BIT(7) |</a>
+<a name="51"><span class="lineNum">      51 </span>            :                 BIT(11) |</a>
+<a name="52"><span class="lineNum">      52 </span>            :                 BIT(13) |</a>
+<a name="53"><span class="lineNum">      53 </span>            :                 BIT(17) |</a>
+<a name="54"><span class="lineNum">      54 </span>            :                 BIT(19) |</a>
+<a name="55"><span class="lineNum">      55 </span>            :                 BIT(23) |</a>
+<a name="56"><span class="lineNum">      56 </span>            :                 BIT(29) |</a>
+<a name="57"><span class="lineNum">      57 </span>            :                 BIT(31)</a>
+<a name="58"><span class="lineNum">      58 </span>            :         }</a>
+<a name="59"><span class="lineNum">      59 </span>            : };</a>
+<a name="60"><span class="lineNum">      60 </span>            : #else</a>
+<a name="61"><span class="lineNum">      61 </span>            : #error &quot;unhandled BITS_PER_LONG&quot;</a>
+<a name="62"><span class="lineNum">      62 </span>            : #endif</a>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<a name="64"><span class="lineNum">      64 </span>            : static DEFINE_MUTEX(lock);</a>
+<a name="65"><span class="lineNum">      65 </span>            : static const struct primes __rcu *primes = RCU_INITIALIZER(&amp;small_primes);</a>
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<a name="67"><span class="lineNum">      67 </span>            : static unsigned long selftest_max;</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            : static bool slow_is_prime_number(unsigned long x)</a>
+<a name="70"><span class="lineNum">      70 </span>            : {</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :         unsigned long y = int_sqrt(x);</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :         while (y &gt; 1) {</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineNoCov">          0 :                 if ((x % y) == 0)</span></a>
+<a name="75"><span class="lineNum">      75 </span>            :                         break;</a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 y--;</span></a>
+<a name="77"><span class="lineNum">      77 </span>            :         }</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :         return y == 1;</span></a>
+<a name="80"><span class="lineNum">      80 </span>            : }</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 : static unsigned long slow_next_prime_number(unsigned long x)</span></a>
+<a name="83"><span class="lineNum">      83 </span>            : {</a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 :         while (x &lt; ULONG_MAX &amp;&amp; !slow_is_prime_number(++x))</span></a>
+<a name="85"><span class="lineNum">      85 </span>            :                 ;</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :         return x;</span></a>
+<a name="88"><span class="lineNum">      88 </span>            : }</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineCov">         85 : static unsigned long clear_multiples(unsigned long x,</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :                                      unsigned long *p,</a>
+<a name="92"><span class="lineNum">      92 </span>            :                                      unsigned long start,</a>
+<a name="93"><span class="lineNum">      93 </span>            :                                      unsigned long end)</a>
+<a name="94"><span class="lineNum">      94 </span>            : {</a>
+<a name="95"><span class="lineNum">      95 </span>            :         unsigned long m;</a>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">         85 :         m = 2 * x;</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">         85 :         if (m &lt; start)</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">         29 :                 m = roundup(start, x);</span></a>
+<a name="100"><span class="lineNum">     100 </span>            : </a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">        432 :         while (m &lt; end) {</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">        347 :                 __clear_bit(m, p);</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">        347 :                 m += x;</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :         }</a>
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineCov">         85 :         return x;</span></a>
+<a name="107"><span class="lineNum">     107 </span>            : }</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">          2 : static bool expand_to_next_prime(unsigned long x)</span></a>
+<a name="110"><span class="lineNum">     110 </span>            : {</a>
+<a name="111"><span class="lineNum">     111 </span>            :         const struct primes *p;</a>
+<a name="112"><span class="lineNum">     112 </span>            :         struct primes *new;</a>
+<a name="113"><span class="lineNum">     113 </span>            :         unsigned long sz, y;</a>
+<a name="114"><span class="lineNum">     114 </span>            : </a>
+<a name="115"><span class="lineNum">     115 </span>            :         /* Betrand's Postulate (or Chebyshev's theorem) states that if n &gt; 3,</a>
+<a name="116"><span class="lineNum">     116 </span>            :          * there is always at least one prime p between n and 2n - 2.</a>
+<a name="117"><span class="lineNum">     117 </span>            :          * Equivalently, if n &gt; 1, then there is always at least one prime p</a>
+<a name="118"><span class="lineNum">     118 </span>            :          * such that n &lt; p &lt; 2n.</a>
+<a name="119"><span class="lineNum">     119 </span>            :          *</a>
+<a name="120"><span class="lineNum">     120 </span>            :          * http://mathworld.wolfram.com/BertrandsPostulate.html</a>
+<a name="121"><span class="lineNum">     121 </span>            :          * https://en.wikipedia.org/wiki/Bertrand's_postulate</a>
+<a name="122"><span class="lineNum">     122 </span>            :          */</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">          2 :         sz = 2 * x;</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">          2 :         if (sz &lt; x)</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :                 return false;</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">          2 :         sz = round_up(sz, BITS_PER_LONG);</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">          4 :         new = kmalloc(sizeof(*new) + bitmap_size(sz),</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :                       GFP_KERNEL | __GFP_NOWARN);</a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">          2 :         if (!new)</span></a>
+<a name="131"><span class="lineNum">     131 </span>            :                 return false;</a>
+<a name="132"><span class="lineNum">     132 </span>            : </a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">          2 :         mutex_lock(&amp;lock);</span></a>
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">          2 :         p = rcu_dereference_protected(primes, lockdep_is_held(&amp;lock));</span></a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">          2 :         if (x &lt; p-&gt;last) {</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 kfree(new);</span></a>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 goto unlock;</span></a>
+<a name="138"><span class="lineNum">     138 </span>            :         }</a>
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<a name="140"><span class="lineNum">     140 </span>            :         /* Where memory permits, track the primes using the</a>
+<a name="141"><span class="lineNum">     141 </span>            :          * Sieve of Eratosthenes. The sieve is to remove all multiples of known</a>
+<a name="142"><span class="lineNum">     142 </span>            :          * primes from the set, what remains in the set is therefore prime.</a>
+<a name="143"><span class="lineNum">     143 </span>            :          */</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">          2 :         bitmap_fill(new-&gt;primes, sz);</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">          2 :         bitmap_copy(new-&gt;primes, p-&gt;primes, p-&gt;sz);</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">         87 :         for (y = 2UL; y &lt; sz; y = find_next_bit(new-&gt;primes, sz, y + 1))</span></a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">         85 :                 new-&gt;last = clear_multiples(y, new-&gt;primes, p-&gt;sz, sz);</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          2 :         new-&gt;sz = sz;</span></a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">          2 :         BUG_ON(new-&gt;last &lt;= x);</span></a>
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">          2 :         rcu_assign_pointer(primes, new);</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">          2 :         if (p != &amp;small_primes)</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">          1 :                 kfree_rcu((struct primes *)p, rcu);</span></a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            : unlock:</a>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          2 :         mutex_unlock(&amp;lock);</span></a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">          2 :         return true;</span></a>
+<a name="159"><span class="lineNum">     159 </span>            : }</a>
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 : static void free_primes(void)</span></a>
+<a name="162"><span class="lineNum">     162 </span>            : {</a>
+<a name="163"><span class="lineNum">     163 </span>            :         const struct primes *p;</a>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :         mutex_lock(&amp;lock);</span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :         p = rcu_dereference_protected(primes, lockdep_is_held(&amp;lock));</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :         if (p != &amp;small_primes) {</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 rcu_assign_pointer(primes, &amp;small_primes);</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 kfree_rcu((struct primes *)p, rcu);</span></a>
+<a name="170"><span class="lineNum">     170 </span>            :         }</a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineNoCov">          0 :         mutex_unlock(&amp;lock);</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            : /**</a>
+<a name="175"><span class="lineNum">     175 </span>            :  * next_prime_number - return the next prime number</a>
+<a name="176"><span class="lineNum">     176 </span>            :  * @x: the starting point for searching to test</a>
+<a name="177"><span class="lineNum">     177 </span>            :  *</a>
+<a name="178"><span class="lineNum">     178 </span>            :  * A prime number is an integer greater than 1 that is only divisible by</a>
+<a name="179"><span class="lineNum">     179 </span>            :  * itself and 1.  The set of prime numbers is computed using the Sieve of</a>
+<a name="180"><span class="lineNum">     180 </span>            :  * Eratoshenes (on finding a prime, all multiples of that prime are removed</a>
+<a name="181"><span class="lineNum">     181 </span>            :  * from the set) enabling a fast lookup of the next prime number larger than</a>
+<a name="182"><span class="lineNum">     182 </span>            :  * @x. If the sieve fails (memory limitation), the search falls back to using</a>
+<a name="183"><span class="lineNum">     183 </span>            :  * slow trial-divison, up to the value of ULONG_MAX (which is reported as the</a>
+<a name="184"><span class="lineNum">     184 </span>            :  * final prime as a sentinel).</a>
+<a name="185"><span class="lineNum">     185 </span>            :  *</a>
+<a name="186"><span class="lineNum">     186 </span>            :  * Returns: the next prime number larger than @x</a>
+<a name="187"><span class="lineNum">     187 </span>            :  */</a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">      15274 : unsigned long next_prime_number(unsigned long x)</span></a>
+<a name="189"><span class="lineNum">     189 </span>            : {</a>
+<a name="190"><span class="lineNum">     190 </span>            :         const struct primes *p;</a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            :         rcu_read_lock();</a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">      15274 :         p = rcu_dereference(primes);</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">      30550 :         while (x &gt;= p-&gt;last) {</span></a>
+<a name="195"><span class="lineNum">     195 </span>            :                 rcu_read_unlock();</a>
+<a name="196"><span class="lineNum">     196 </span>            : </a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">          2 :                 if (!expand_to_next_prime(x))</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :                         return slow_next_prime_number(x);</span></a>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<a name="200"><span class="lineNum">     200 </span>            :                 rcu_read_lock();</a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">          2 :                 p = rcu_dereference(primes);</span></a>
+<a name="202"><span class="lineNum">     202 </span>            :         }</a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">      15274 :         x = find_next_bit(p-&gt;primes, p-&gt;last, x + 1);</span></a>
+<a name="204"><span class="lineNum">     204 </span>            :         rcu_read_unlock();</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">      15274 :         return x;</span></a>
+<a name="207"><span class="lineNum">     207 </span>            : }</a>
+<a name="208"><span class="lineNum">     208 </span>            : EXPORT_SYMBOL(next_prime_number);</a>
+<a name="209"><span class="lineNum">     209 </span>            : </a>
+<a name="210"><span class="lineNum">     210 </span>            : /**</a>
+<a name="211"><span class="lineNum">     211 </span>            :  * is_prime_number - test whether the given number is prime</a>
+<a name="212"><span class="lineNum">     212 </span>            :  * @x: the number to test</a>
+<a name="213"><span class="lineNum">     213 </span>            :  *</a>
+<a name="214"><span class="lineNum">     214 </span>            :  * A prime number is an integer greater than 1 that is only divisible by</a>
+<a name="215"><span class="lineNum">     215 </span>            :  * itself and 1. Internally a cache of prime numbers is kept (to speed up</a>
+<a name="216"><span class="lineNum">     216 </span>            :  * searching for sequential primes, see next_prime_number()), but if the number</a>
+<a name="217"><span class="lineNum">     217 </span>            :  * falls outside of that cache, its primality is tested using trial-divison.</a>
+<a name="218"><span class="lineNum">     218 </span>            :  *</a>
+<a name="219"><span class="lineNum">     219 </span>            :  * Returns: true if @x is prime, false for composite numbers.</a>
+<a name="220"><span class="lineNum">     220 </span>            :  */</a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 : bool is_prime_number(unsigned long x)</span></a>
+<a name="222"><span class="lineNum">     222 </span>            : {</a>
+<a name="223"><span class="lineNum">     223 </span>            :         const struct primes *p;</a>
+<a name="224"><span class="lineNum">     224 </span>            :         bool result;</a>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<a name="226"><span class="lineNum">     226 </span>            :         rcu_read_lock();</a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 :         p = rcu_dereference(primes);</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :         while (x &gt;= p-&gt;sz) {</span></a>
+<a name="229"><span class="lineNum">     229 </span>            :                 rcu_read_unlock();</a>
+<a name="230"><span class="lineNum">     230 </span>            : </a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 if (!expand_to_next_prime(x))</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :                         return slow_is_prime_number(x);</span></a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span>            :                 rcu_read_lock();</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :                 p = rcu_dereference(primes);</span></a>
+<a name="236"><span class="lineNum">     236 </span>            :         }</a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :         result = test_bit(x, p-&gt;primes);</span></a>
+<a name="238"><span class="lineNum">     238 </span>            :         rcu_read_unlock();</a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :         return result;</span></a>
+<a name="241"><span class="lineNum">     241 </span>            : }</a>
+<a name="242"><span class="lineNum">     242 </span>            : EXPORT_SYMBOL(is_prime_number);</a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 : static void dump_primes(void)</span></a>
+<a name="245"><span class="lineNum">     245 </span>            : {</a>
+<a name="246"><span class="lineNum">     246 </span>            :         const struct primes *p;</a>
+<a name="247"><span class="lineNum">     247 </span>            :         char *buf;</a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :         buf = kmalloc(PAGE_SIZE, GFP_KERNEL);</span></a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :         rcu_read_lock();</a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 :         p = rcu_dereference(primes);</span></a>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 :         if (buf)</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 bitmap_print_to_pagebuf(true, buf, p-&gt;primes, p-&gt;sz);</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 :         pr_info(&quot;primes.{last=%lu, .sz=%lu, .primes[]=...x%lx} = %s\n&quot;,</span></a>
+<a name="257"><span class="lineNum">     257 </span>            :                 p-&gt;last, p-&gt;sz, p-&gt;primes[BITS_TO_LONGS(p-&gt;sz) - 1], buf);</a>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<a name="259"><span class="lineNum">     259 </span>            :         rcu_read_unlock();</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :         kfree(buf);</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="263"><span class="lineNum">     263 </span>            : </a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">          1 : static int selftest(unsigned long max)</span></a>
+<a name="265"><span class="lineNum">     265 </span>            : {</a>
+<a name="266"><span class="lineNum">     266 </span>            :         unsigned long x, last;</a>
+<a name="267"><span class="lineNum">     267 </span>            : </a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">          1 :         if (!max)</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :                 return 0;</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :         for (last = 0, x = 2; x &lt; max; x++) {</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 bool slow = slow_is_prime_number(x);</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :                 bool fast = is_prime_number(x);</span></a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 :                 if (slow != fast) {</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :                         pr_err(&quot;inconsistent result for is-prime(%lu): slow=%s, fast=%s!\n&quot;,</span></a>
+<a name="277"><span class="lineNum">     277 </span>            :                                x, slow ? &quot;yes&quot; : &quot;no&quot;, fast ? &quot;yes&quot; : &quot;no&quot;);</a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 :                         goto err;</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :                 }</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineNoCov">          0 :                 if (!slow)</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineNoCov">          0 :                         continue;</span></a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 if (next_prime_number(last) != x) {</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 :                         pr_err(&quot;incorrect result for next-prime(%lu): expected %lu, got %lu\n&quot;,</span></a>
+<a name="286"><span class="lineNum">     286 </span>            :                                last, x, next_prime_number(last));</a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineNoCov">          0 :                         goto err;</span></a>
+<a name="288"><span class="lineNum">     288 </span>            :                 }</a>
+<a name="289"><span class="lineNum">     289 </span>            :                 last = x;</a>
+<a name="290"><span class="lineNum">     290 </span>            :         }</a>
+<a name="291"><span class="lineNum">     291 </span>            : </a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineNoCov">          0 :         pr_info(&quot;%s(%lu) passed, last prime was %lu\n&quot;, __func__, x, last);</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :         return 0;</span></a>
+<a name="294"><span class="lineNum">     294 </span>            : </a>
+<a name="295"><span class="lineNum">     295 </span>            : err:</a>
+<a name="296"><span class="lineNum">     296 </span><span class="lineNoCov">          0 :         dump_primes();</span></a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :         return -EINVAL;</span></a>
+<a name="298"><span class="lineNum">     298 </span>            : }</a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">          1 : static int __init primes_init(void)</span></a>
+<a name="301"><span class="lineNum">     301 </span>            : {</a>
+<a name="302"><span class="lineNum">     302 </span><span class="lineCov">          1 :         return selftest(selftest_max);</span></a>
+<a name="303"><span class="lineNum">     303 </span>            : }</a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 : static void __exit primes_exit(void)</span></a>
+<a name="306"><span class="lineNum">     306 </span>            : {</a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineNoCov">          0 :         free_primes();</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<a name="310"><span class="lineNum">     310 </span>            : module_init(primes_init);</a>
+<a name="311"><span class="lineNum">     311 </span>            : module_exit(primes_exit);</a>
+<a name="312"><span class="lineNum">     312 </span>            : </a>
+<a name="313"><span class="lineNum">     313 </span>            : module_param_named(selftest, selftest_max, ulong, 0400);</a>
+<a name="314"><span class="lineNum">     314 </span>            : </a>
+<a name="315"><span class="lineNum">     315 </span>            : MODULE_AUTHOR(&quot;Intel Corporation&quot;);</a>
+<a name="316"><span class="lineNum">     316 </span>            : MODULE_LICENSE(&quot;GPL&quot;);</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

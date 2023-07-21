@@ -1,0 +1,564 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - kernel/sched/core.c - functions</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">kernel/sched</a> - core.c<span style="font-size: 80%;"> (<a href="core.c.gcov.html">source</a> / functions)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">417</td>
+            <td class="headerCovTableEntry">1097</td>
+            <td class="headerCovTableEntryLo">38.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-07-19 18:55:55</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">123</td>
+            <td class="headerCovTableEntryLo">31.7 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <center>
+  <table width="60%" cellpadding=1 cellspacing=1 border=0>
+    <tr><td><br></td></tr>
+    <tr>
+      <td width="80%" class="tableHead">Function Name <span class="tableHeadSort"><img src="../../glass.png" width=10 height=14 alt="Sort by function name" title="Sort by function name" border=0></span></td>
+      <td width="20%" class="tableHead">Hit count <span class="tableHeadSort"><a href="core.c.func-sort-c.html"><img src="../../updown.png" width=10 height=14 alt="Sort by hit count" title="Sort by hit count" border=0></a></span></td>
+    </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8511">__cond_resched</a></td>
+              <td class="coverFnHi">47766</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8577">__cond_resched_lock</a></td>
+              <td class="coverFnHi">5</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8595">__cond_resched_rwlock_read</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8613">__cond_resched_rwlock_write</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7248">__do_sys_nice</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8451">__do_sys_sched_getaffinity</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8182">__do_sys_sched_getattr</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8101">__do_sys_sched_getparam</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8072">__do_sys_sched_getscheduler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9082">__do_sys_sched_rr_get_interval</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8399">__do_sys_sched_setaffinity</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8029">__do_sys_sched_setattr</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5956">__pick_next_task</a></td>
+              <td class="coverFnHi">2513</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4454">__sched_fork.isra.106</a></td>
+              <td class="coverFnHi">383</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8255">__sched_setaffinity.isra.114</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7579">__sched_setscheduler</a></td>
+              <td class="coverFnHi">380</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6548">__schedule</a></td>
+              <td class="coverFnHi">2513</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5870">__schedule_bug</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7248">__se_sys_nice</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8990">__se_sys_sched_get_priority_max</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9017">__se_sys_sched_get_priority_min</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8451">__se_sys_sched_getaffinity</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8182">__se_sys_sched_getattr</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8101">__se_sys_sched_getparam</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8072">__se_sys_sched_getscheduler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9082">__se_sys_sched_rr_get_interval</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8399">__se_sys_sched_setaffinity</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8029">__se_sys_sched_setattr</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8018">__se_sys_sched_setparam</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8003">__se_sys_sched_setscheduler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7475">__setscheduler_params</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#625">__task_rq_lock</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7802">_sched_setscheduler</a></td>
+              <td class="coverFnHi">380</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2103">activate_task</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7321">available_idle_cpu</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#11486">call_trace_sched_update_nr_running</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7234">can_nice</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2186">check_class_changed</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2199">check_preempt_curr</a></td>
+              <td class="coverFnHi">2442</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4416">cpu_curr_snapshot</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2115">deactivate_task</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6987">default_wake_function</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2086">dequeue_task</a></td>
+              <td class="coverFnHi">2440</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7914">do_sched_setscheduler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8479">do_sched_yield</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6677">do_task_dead</a></td>
+              <td class="coverFnHi">367</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#11426">dump_cpu_task</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2069">enqueue_task</a></td>
+              <td class="coverFnHi">2442</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5170">finish_task_switch</a></td>
+              <td class="coverFnHi">2513</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7985">get_params</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8380">get_user_cpu_mask</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2050">get_wchan</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7297">idle_cpu</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7338">idle_task</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9854">in_sched_functions</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9201">init_idle</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8972">io_schedule</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8950">io_schedule_finish</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8941">io_schedule_prepare</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8959">io_schedule_timeout</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5387">nr_context_switches</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5382">nr_context_switches_cpu</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5440">nr_iowait</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5405">nr_iowait_cpu</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5353">nr_running</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6967">preempt_schedule_irq</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#549">raw_spin_rq_lock_nested</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#574">raw_spin_rq_trylock</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#598">raw_spin_rq_unlock</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#1063">resched_cpu</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#1039">resched_curr</a></td>
+              <td class="coverFnHi">1075</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7035">rt_mutex_setprio</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8145">sched_attr_copy_to_user</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4750">sched_cgroup_fork</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7943">sched_copy_attr</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4676">sched_core_sysctl_init</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4687">sched_fork</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8415">sched_getaffinity</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9873">sched_init</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9848">sched_init_smp</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4779">sched_post_fork</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9035">sched_rr_get_interval</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7886">sched_set_fifo</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7896">sched_set_fifo_low</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7903">sched_set_normal</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8316">sched_setaffinity</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7838">sched_setattr</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7843">sched_setattr_nocheck</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7832">sched_setscheduler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7862">sched_setscheduler_nocheck</a></td>
+              <td class="coverFnHi">380</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9107">sched_show_task</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6693">sched_submit_work</a></td>
+              <td class="coverFnHi">2074</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2045">sched_task_on_rq</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6726">sched_update_worker</a></td>
+              <td class="coverFnHi">2059</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6736">schedule</a></td>
+              <td class="coverFnHi">2074</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6760">schedule_idle</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#6799">schedule_preempt_disabled</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5258">schedule_tail</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5600">scheduler_tick</a></td>
+              <td class="coverFnHi">2943</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#1280">set_load_weight</a></td>
+              <td class="coverFnHi">6</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7159">set_user_nice</a></td>
+              <td class="coverFnHi">9</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#9162">show_state_filter</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5376">single_task_running</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8504">sys_sched_yield</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4364">task_call_func</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#2174">task_curr</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7286">task_prio</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#649">task_rq_lock</a></td>
+              <td class="coverFnHi">385</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#5508">task_sched_runtime</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4784">to_ratio</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4157">try_to_wake_up</a></td>
+              <td class="coverFnHi">2475</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#3713">ttwu_do_activate.isra.126</a></td>
+              <td class="coverFnHi">2060</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#3791">ttwu_runnable</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#748">update_rq_clock</a></td>
+              <td class="coverFnHi">8665</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#7521">user_check_sched_setscheduler.isra.110</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#982">wake_q_add</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#1005">wake_q_add_safe</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4807">wake_up_new_task</a></td>
+              <td class="coverFnHi">382</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4437">wake_up_process</a></td>
+              <td class="coverFnHi">2474</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#1011">wake_up_q</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#4443">wake_up_state</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8860">yield</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="core.c.gcov.html#8882">yield_to</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+  </table>
+  <br>
+  </center>
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

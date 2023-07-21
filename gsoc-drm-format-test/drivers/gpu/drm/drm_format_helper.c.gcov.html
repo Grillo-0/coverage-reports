@@ -1,0 +1,1280 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - drivers/gpu/drm/drm_format_helper.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">drivers/gpu/drm</a> - drm_format_helper.c<span style="font-size: 80%;"> (source / <a href="drm_format_helper.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">274</td>
+            <td class="headerCovTableEntry">383</td>
+            <td class="headerCovTableEntryLo">71.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-07-19 18:55:55</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // SPDX-License-Identifier: GPL-2.0 or MIT</a>
+<a name="2"><span class="lineNum">       2 </span>            : /*</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * Copyright (C) 2016 Noralf Trønnes</a>
+<a name="4"><span class="lineNum">       4 </span>            :  *</a>
+<a name="5"><span class="lineNum">       5 </span>            :  * This program is free software; you can redistribute it and/or modify</a>
+<a name="6"><span class="lineNum">       6 </span>            :  * it under the terms of the GNU General Public License as published by</a>
+<a name="7"><span class="lineNum">       7 </span>            :  * the Free Software Foundation; either version 2 of the License, or</a>
+<a name="8"><span class="lineNum">       8 </span>            :  * (at your option) any later version.</a>
+<a name="9"><span class="lineNum">       9 </span>            :  */</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : #include &lt;linux/io.h&gt;</a>
+<a name="12"><span class="lineNum">      12 </span>            : #include &lt;linux/iosys-map.h&gt;</a>
+<a name="13"><span class="lineNum">      13 </span>            : #include &lt;linux/module.h&gt;</a>
+<a name="14"><span class="lineNum">      14 </span>            : #include &lt;linux/slab.h&gt;</a>
+<a name="15"><span class="lineNum">      15 </span>            : </a>
+<a name="16"><span class="lineNum">      16 </span>            : #include &lt;drm/drm_device.h&gt;</a>
+<a name="17"><span class="lineNum">      17 </span>            : #include &lt;drm/drm_format_helper.h&gt;</a>
+<a name="18"><span class="lineNum">      18 </span>            : #include &lt;drm/drm_framebuffer.h&gt;</a>
+<a name="19"><span class="lineNum">      19 </span>            : #include &lt;drm/drm_fourcc.h&gt;</a>
+<a name="20"><span class="lineNum">      20 </span>            : #include &lt;drm/drm_print.h&gt;</a>
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;drm/drm_rect.h&gt;</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            : static unsigned int clip_offset(const struct drm_rect *clip, unsigned int pitch, unsigned int cpp)</a>
+<a name="24"><span class="lineNum">      24 </span>            : {</a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">         83 :         return clip-&gt;y1 * pitch + clip-&gt;x1 * cpp;</span></a>
+<a name="26"><span class="lineNum">      26 </span>            : }</a>
+<a name="27"><span class="lineNum">      27 </span>            : </a>
+<a name="28"><span class="lineNum">      28 </span>            : /**</a>
+<a name="29"><span class="lineNum">      29 </span>            :  * drm_fb_clip_offset - Returns the clipping rectangles byte-offset in a framebuffer</a>
+<a name="30"><span class="lineNum">      30 </span>            :  * @pitch: Framebuffer line pitch in byte</a>
+<a name="31"><span class="lineNum">      31 </span>            :  * @format: Framebuffer format</a>
+<a name="32"><span class="lineNum">      32 </span>            :  * @clip: Clip rectangle</a>
+<a name="33"><span class="lineNum">      33 </span>            :  *</a>
+<a name="34"><span class="lineNum">      34 </span>            :  * Returns:</a>
+<a name="35"><span class="lineNum">      35 </span>            :  * The byte offset of the clip rectangle's top-left corner within the framebuffer.</a>
+<a name="36"><span class="lineNum">      36 </span>            :  */</a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineCov">          7 : unsigned int drm_fb_clip_offset(unsigned int pitch, const struct drm_format_info *format,</span></a>
+<a name="38"><span class="lineNum">      38 </span>            :                                 const struct drm_rect *clip)</a>
+<a name="39"><span class="lineNum">      39 </span>            : {</a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">         14 :         return clip_offset(clip, pitch, format-&gt;cpp[0]);</span></a>
+<a name="41"><span class="lineNum">      41 </span>            : }</a>
+<a name="42"><span class="lineNum">      42 </span>            : EXPORT_SYMBOL(drm_fb_clip_offset);</a>
+<a name="43"><span class="lineNum">      43 </span>            : </a>
+<a name="44"><span class="lineNum">      44 </span>            : /* TODO: Make this function work with multi-plane formats. */</a>
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">         48 : static int __drm_fb_xfrm(void *dst, unsigned long dst_pitch, unsigned long dst_pixsize,</span></a>
+<a name="46"><span class="lineNum">      46 </span>            :                          const void *vaddr, const struct drm_framebuffer *fb,</a>
+<a name="47"><span class="lineNum">      47 </span>            :                          const struct drm_rect *clip, bool vaddr_cached_hint,</a>
+<a name="48"><span class="lineNum">      48 </span>            :                          void (*xfrm_line)(void *dbuf, const void *sbuf, unsigned int npixels))</a>
+<a name="49"><span class="lineNum">      49 </span>            : {</a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">         96 :         unsigned long linepixels = drm_rect_width(clip);</span></a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">         96 :         unsigned long lines = drm_rect_height(clip);</span></a>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">         48 :         size_t sbuf_len = linepixels * fb-&gt;format-&gt;cpp[0];</span></a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineCov">         48 :         void *stmp = NULL;</span></a>
+<a name="54"><span class="lineNum">      54 </span>            :         unsigned long i;</a>
+<a name="55"><span class="lineNum">      55 </span>            :         const void *sbuf;</a>
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<a name="57"><span class="lineNum">      57 </span>            :         /*</a>
+<a name="58"><span class="lineNum">      58 </span>            :          * Some source buffers, such as DMA memory, use write-combine</a>
+<a name="59"><span class="lineNum">      59 </span>            :          * caching, so reads are uncached. Speed up access by fetching</a>
+<a name="60"><span class="lineNum">      60 </span>            :          * one line at a time.</a>
+<a name="61"><span class="lineNum">      61 </span>            :          */</a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">         48 :         if (!vaddr_cached_hint) {</span></a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">         48 :                 stmp = kmalloc(sbuf_len, GFP_KERNEL);</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">         48 :                 if (!stmp)</span></a>
+<a name="65"><span class="lineNum">      65 </span>            :                         return -ENOMEM;</a>
+<a name="66"><span class="lineNum">      66 </span>            :         }</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">         48 :         if (!dst_pitch)</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">         72 :                 dst_pitch = drm_rect_width(clip) * dst_pixsize;</span></a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         96 :         vaddr += clip_offset(clip, fb-&gt;pitches[0], fb-&gt;format-&gt;cpp[0]);</span></a>
+<a name="71"><span class="lineNum">      71 </span>            : </a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">        156 :         for (i = 0; i &lt; lines; ++i) {</span></a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">        108 :                 if (stmp)</span></a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">        108 :                         sbuf = memcpy(stmp, vaddr, sbuf_len);</span></a>
+<a name="75"><span class="lineNum">      75 </span>            :                 else</a>
+<a name="76"><span class="lineNum">      76 </span>            :                         sbuf = vaddr;</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">        108 :                 xfrm_line(dst, sbuf, linepixels);</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">        108 :                 vaddr += fb-&gt;pitches[0];</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">        108 :                 dst += dst_pitch;</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :         }</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">         48 :         kfree(stmp);</span></a>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">         48 :         return 0;</span></a>
+<a name="85"><span class="lineNum">      85 </span>            : }</a>
+<a name="86"><span class="lineNum">      86 </span>            : </a>
+<a name="87"><span class="lineNum">      87 </span>            : /* TODO: Make this function work with multi-plane formats. */</a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 : static int __drm_fb_xfrm_toio(void __iomem *dst, unsigned long dst_pitch, unsigned long dst_pixsize,</span></a>
+<a name="89"><span class="lineNum">      89 </span>            :                               const void *vaddr, const struct drm_framebuffer *fb,</a>
+<a name="90"><span class="lineNum">      90 </span>            :                               const struct drm_rect *clip, bool vaddr_cached_hint,</a>
+<a name="91"><span class="lineNum">      91 </span>            :                               void (*xfrm_line)(void *dbuf, const void *sbuf, unsigned int npixels))</a>
+<a name="92"><span class="lineNum">      92 </span>            : {</a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :         unsigned long linepixels = drm_rect_width(clip);</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :         unsigned long lines = drm_rect_height(clip);</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :         size_t dbuf_len = linepixels * dst_pixsize;</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :         size_t stmp_off = round_up(dbuf_len, ARCH_KMALLOC_MINALIGN); /* for sbuf alignment */</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :         size_t sbuf_len = linepixels * fb-&gt;format-&gt;cpp[0];</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineNoCov">          0 :         void *stmp = NULL;</span></a>
+<a name="99"><span class="lineNum">      99 </span>            :         unsigned long i;</a>
+<a name="100"><span class="lineNum">     100 </span>            :         const void *sbuf;</a>
+<a name="101"><span class="lineNum">     101 </span>            :         void *dbuf;</a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :         if (vaddr_cached_hint) {</span></a>
+<a name="104"><span class="lineNum">     104 </span>            :                 dbuf = kmalloc(dbuf_len, GFP_KERNEL);</a>
+<a name="105"><span class="lineNum">     105 </span>            :         } else {</a>
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 dbuf = kmalloc(stmp_off + sbuf_len, GFP_KERNEL);</span></a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 stmp = dbuf + stmp_off;</span></a>
+<a name="108"><span class="lineNum">     108 </span>            :         }</a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :         if (!dbuf)</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :                 return -ENOMEM;</a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineNoCov">          0 :         if (!dst_pitch)</span></a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 dst_pitch = linepixels * dst_pixsize;</span></a>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :         vaddr += clip_offset(clip, fb-&gt;pitches[0], fb-&gt;format-&gt;cpp[0]);</span></a>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; lines; ++i) {</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 if (stmp)</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :                         sbuf = memcpy(stmp, vaddr, sbuf_len);</span></a>
+<a name="119"><span class="lineNum">     119 </span>            :                 else</a>
+<a name="120"><span class="lineNum">     120 </span>            :                         sbuf = vaddr;</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :                 xfrm_line(dbuf, sbuf, linepixels);</span></a>
+<a name="122"><span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 memcpy_toio(dst, dbuf, dbuf_len);</span></a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 vaddr += fb-&gt;pitches[0];</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 dst += dst_pitch;</span></a>
+<a name="125"><span class="lineNum">     125 </span>            :         }</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :         kfree(dbuf);</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :         return 0;</span></a>
+<a name="130"><span class="lineNum">     130 </span>            : }</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            : /* TODO: Make this function work with multi-plane formats. */</a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">         48 : static int drm_fb_xfrm(struct iosys_map *dst,</span></a>
+<a name="134"><span class="lineNum">     134 </span>            :                        const unsigned int *dst_pitch, const u8 *dst_pixsize,</a>
+<a name="135"><span class="lineNum">     135 </span>            :                        const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="136"><span class="lineNum">     136 </span>            :                        const struct drm_rect *clip, bool vaddr_cached_hint,</a>
+<a name="137"><span class="lineNum">     137 </span>            :                        void (*xfrm_line)(void *dbuf, const void *sbuf, unsigned int npixels))</a>
+<a name="138"><span class="lineNum">     138 </span>            : {</a>
+<a name="139"><span class="lineNum">     139 </span>            :         static const unsigned int default_dst_pitch[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="140"><span class="lineNum">     140 </span>            :                 0, 0, 0, 0</a>
+<a name="141"><span class="lineNum">     141 </span>            :         };</a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">         48 :         if (!dst_pitch)</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">         33 :                 dst_pitch = default_dst_pitch;</span></a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<a name="146"><span class="lineNum">     146 </span>            :         /* TODO: handle src in I/O memory here */</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">         48 :         if (dst[0].is_iomem)</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :                 return __drm_fb_xfrm_toio(dst[0].vaddr_iomem, dst_pitch[0], dst_pixsize[0],</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :                                           src[0].vaddr, fb, clip, vaddr_cached_hint, xfrm_line);</span></a>
+<a name="150"><span class="lineNum">     150 </span>            :         else</a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">         96 :                 return __drm_fb_xfrm(dst[0].vaddr, dst_pitch[0], dst_pixsize[0],</span></a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineCov">         48 :                                      src[0].vaddr, fb, clip, vaddr_cached_hint, xfrm_line);</span></a>
+<a name="153"><span class="lineNum">     153 </span>            : }</a>
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<a name="155"><span class="lineNum">     155 </span>            : /**</a>
+<a name="156"><span class="lineNum">     156 </span>            :  * drm_fb_memcpy - Copy clip buffer</a>
+<a name="157"><span class="lineNum">     157 </span>            :  * @dst: Array of destination buffers</a>
+<a name="158"><span class="lineNum">     158 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="159"><span class="lineNum">     159 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="160"><span class="lineNum">     160 </span>            :  * @src: Array of source buffers</a>
+<a name="161"><span class="lineNum">     161 </span>            :  * @fb: DRM framebuffer</a>
+<a name="162"><span class="lineNum">     162 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="163"><span class="lineNum">     163 </span>            :  *</a>
+<a name="164"><span class="lineNum">     164 </span>            :  * This function copies parts of a framebuffer to display memory. Destination and</a>
+<a name="165"><span class="lineNum">     165 </span>            :  * framebuffer formats must match. No conversion takes place. The parameters @dst,</a>
+<a name="166"><span class="lineNum">     166 </span>            :  * @dst_pitch and @src refer to arrays. Each array must have at least as many entries</a>
+<a name="167"><span class="lineNum">     167 </span>            :  * as there are planes in @fb's format. Each entry stores the value for the format's</a>
+<a name="168"><span class="lineNum">     168 </span>            :  * respective color plane at the same index.</a>
+<a name="169"><span class="lineNum">     169 </span>            :  *</a>
+<a name="170"><span class="lineNum">     170 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="171"><span class="lineNum">     171 </span>            :  * top-left corner).</a>
+<a name="172"><span class="lineNum">     172 </span>            :  */</a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">         12 : void drm_fb_memcpy(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="174"><span class="lineNum">     174 </span>            :                    const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="175"><span class="lineNum">     175 </span>            :                    const struct drm_rect *clip)</a>
+<a name="176"><span class="lineNum">     176 </span>            : {</a>
+<a name="177"><span class="lineNum">     177 </span>            :         static const unsigned int default_dst_pitch[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="178"><span class="lineNum">     178 </span>            :                 0, 0, 0, 0</a>
+<a name="179"><span class="lineNum">     179 </span>            :         };</a>
+<a name="180"><span class="lineNum">     180 </span>            : </a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">         12 :         const struct drm_format_info *format = fb-&gt;format;</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">         24 :         unsigned int i, y, lines = drm_rect_height(clip);</span></a>
+<a name="183"><span class="lineNum">     183 </span>            : </a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">         12 :         if (!dst_pitch)</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">          9 :                 dst_pitch = default_dst_pitch;</span></a>
+<a name="186"><span class="lineNum">     186 </span>            : </a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">         12 :         printk(&quot;lines = %zu\n&quot;, lines);</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">         36 :         for (i = 0; i &lt; format-&gt;num_planes; ++i) {</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineCov">         24 :                 unsigned int bpp_i = drm_format_info_bpp(format, i);</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">         24 :                 unsigned int cpp_i = DIV_ROUND_UP(bpp_i, 8);</span></a>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">         48 :                 size_t len_i = DIV_ROUND_UP(drm_rect_width(clip) * bpp_i, 8);</span></a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">         24 :                 unsigned int dst_pitch_i = dst_pitch[i];</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">         24 :                 struct iosys_map dst_i = dst[i];</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">         24 :                 struct iosys_map src_i = src[i];</span></a>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">         24 :                 if (!dst_pitch_i)</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">         18 :                         dst_pitch_i = len_i;</span></a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">         24 :                 printk(&quot;dst_pitch[%zu] = %zu\n&quot;, i, dst_pitch_i);</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">         24 :                 printk(&quot;len[%zu] = %zu\n&quot;, i, len_i);</span></a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">         48 :                 iosys_map_incr(&amp;src_i, clip_offset(clip, fb-&gt;pitches[i], cpp_i));</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">         54 :                 for (y = 0; y &lt; lines; y++) {</span></a>
+<a name="204"><span class="lineNum">     204 </span>            :                         /* TODO: handle src_i in I/O memory here */</a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">         54 :                         iosys_map_memcpy_to(&amp;dst_i, 0, src_i.vaddr, len_i);</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">        108 :                         iosys_map_incr(&amp;src_i, fb-&gt;pitches[i]);</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineCov">        108 :                         iosys_map_incr(&amp;dst_i, dst_pitch_i);</span></a>
+<a name="208"><span class="lineNum">     208 </span>            :                 }</a>
+<a name="209"><span class="lineNum">     209 </span>            :         }</a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         12 : }</span></a>
+<a name="211"><span class="lineNum">     211 </span>            : EXPORT_SYMBOL(drm_fb_memcpy);</a>
+<a name="212"><span class="lineNum">     212 </span>            : </a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 : static void drm_fb_swab16_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="214"><span class="lineNum">     214 </span>            : {</a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :         u16 *dbuf16 = dbuf;</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :         const u16 *sbuf16 = sbuf;</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :         const u16 *send16 = sbuf16 + pixels;</span></a>
+<a name="218"><span class="lineNum">     218 </span>            : </a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 :         while (sbuf16 &lt; send16)</span></a>
+<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 :                 *dbuf16++ = swab16(*sbuf16++);</span></a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineCov">          9 : static void drm_fb_swab32_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="224"><span class="lineNum">     224 </span>            : {</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">          9 :         u32 *dbuf32 = dbuf;</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">          9 :         const u32 *sbuf32 = sbuf;</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">          9 :         const u32 *send32 = sbuf32 + pixels;</span></a>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">         37 :         while (sbuf32 &lt; send32)</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">         38 :                 *dbuf32++ = swab32(*sbuf32++);</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">          9 : }</span></a>
+<a name="232"><span class="lineNum">     232 </span>            : </a>
+<a name="233"><span class="lineNum">     233 </span>            : /**</a>
+<a name="234"><span class="lineNum">     234 </span>            :  * drm_fb_swab - Swap bytes into clip buffer</a>
+<a name="235"><span class="lineNum">     235 </span>            :  * @dst: Array of destination buffers</a>
+<a name="236"><span class="lineNum">     236 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="237"><span class="lineNum">     237 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="238"><span class="lineNum">     238 </span>            :  * @src: Array of source buffers</a>
+<a name="239"><span class="lineNum">     239 </span>            :  * @fb: DRM framebuffer</a>
+<a name="240"><span class="lineNum">     240 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="241"><span class="lineNum">     241 </span>            :  * @cached: Source buffer is mapped cached (eg. not write-combined)</a>
+<a name="242"><span class="lineNum">     242 </span>            :  *</a>
+<a name="243"><span class="lineNum">     243 </span>            :  * This function copies parts of a framebuffer to display memory and swaps per-pixel</a>
+<a name="244"><span class="lineNum">     244 </span>            :  * bytes during the process. Destination and framebuffer formats must match. The</a>
+<a name="245"><span class="lineNum">     245 </span>            :  * parameters @dst, @dst_pitch and @src refer to arrays. Each array must have at</a>
+<a name="246"><span class="lineNum">     246 </span>            :  * least as many entries as there are planes in @fb's format. Each entry stores the</a>
+<a name="247"><span class="lineNum">     247 </span>            :  * value for the format's respective color plane at the same index. If @cached is</a>
+<a name="248"><span class="lineNum">     248 </span>            :  * false a temporary buffer is used to cache one pixel line at a time to speed up</a>
+<a name="249"><span class="lineNum">     249 </span>            :  * slow uncached reads.</a>
+<a name="250"><span class="lineNum">     250 </span>            :  *</a>
+<a name="251"><span class="lineNum">     251 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="252"><span class="lineNum">     252 </span>            :  * top-left corner).</a>
+<a name="253"><span class="lineNum">     253 </span>            :  */</a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">          4 : void drm_fb_swab(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="255"><span class="lineNum">     255 </span>            :                  const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="256"><span class="lineNum">     256 </span>            :                  const struct drm_rect *clip, bool cached)</a>
+<a name="257"><span class="lineNum">     257 </span>            : {</a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">          4 :         const struct drm_format_info *format = fb-&gt;format;</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">          4 :         u8 cpp = DIV_ROUND_UP(drm_format_info_bpp(format, 0), 8);</span></a>
+<a name="260"><span class="lineNum">     260 </span>            :         void (*swab_line)(void *dbuf, const void *sbuf, unsigned int npixels);</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">          4 :         switch (cpp) {</span></a>
+<a name="263"><span class="lineNum">     263 </span>            :         case 4:</a>
+<a name="264"><span class="lineNum">     264 </span>            :                 swab_line = drm_fb_swab32_line;</a>
+<a name="265"><span class="lineNum">     265 </span>            :                 break;</a>
+<a name="266"><span class="lineNum">     266 </span>            :         case 2:</a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineNoCov">          0 :                 swab_line = drm_fb_swab16_line;</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="269"><span class="lineNum">     269 </span>            :         default:</a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 drm_warn_once(fb-&gt;dev, &quot;Format %p4cc has unsupported pixel size.\n&quot;,</span></a>
+<a name="271"><span class="lineNum">     271 </span>            :                               &amp;format-&gt;format);</a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 return;</span></a>
+<a name="273"><span class="lineNum">     273 </span>            :         }</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, &amp;cpp, src, fb, clip, cached, swab_line);</span></a>
+<a name="276"><span class="lineNum">     276 </span>            : }</a>
+<a name="277"><span class="lineNum">     277 </span>            : EXPORT_SYMBOL(drm_fb_swab);</a>
+<a name="278"><span class="lineNum">     278 </span>            : </a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_rgb332_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="280"><span class="lineNum">     280 </span>            : {</a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">          9 :         u8 *dbuf8 = dbuf;</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="283"><span class="lineNum">     283 </span>            :         unsigned int x;</a>
+<a name="284"><span class="lineNum">     284 </span>            :         u32 pix;</a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">         57 :                 dbuf8[x] = ((pix &amp; 0x00e00000) &gt;&gt; 16) |</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">         38 :                            ((pix &amp; 0x0000e000) &gt;&gt; 11) |</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">         19 :                            ((pix &amp; 0x000000c0) &gt;&gt; 6);</span></a>
+<a name="291"><span class="lineNum">     291 </span>            :         }</a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">          9 : }</span></a>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<a name="294"><span class="lineNum">     294 </span>            : /**</a>
+<a name="295"><span class="lineNum">     295 </span>            :  * drm_fb_xrgb8888_to_rgb332 - Convert XRGB8888 to RGB332 clip buffer</a>
+<a name="296"><span class="lineNum">     296 </span>            :  * @dst: Array of RGB332 destination buffers</a>
+<a name="297"><span class="lineNum">     297 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="298"><span class="lineNum">     298 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="299"><span class="lineNum">     299 </span>            :  * @src: Array of XRGB8888 source buffers</a>
+<a name="300"><span class="lineNum">     300 </span>            :  * @fb: DRM framebuffer</a>
+<a name="301"><span class="lineNum">     301 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="302"><span class="lineNum">     302 </span>            :  *</a>
+<a name="303"><span class="lineNum">     303 </span>            :  * This function copies parts of a framebuffer to display memory and converts the</a>
+<a name="304"><span class="lineNum">     304 </span>            :  * color format during the process. Destination and framebuffer formats must match. The</a>
+<a name="305"><span class="lineNum">     305 </span>            :  * parameters @dst, @dst_pitch and @src refer to arrays. Each array must have at</a>
+<a name="306"><span class="lineNum">     306 </span>            :  * least as many entries as there are planes in @fb's format. Each entry stores the</a>
+<a name="307"><span class="lineNum">     307 </span>            :  * value for the format's respective color plane at the same index.</a>
+<a name="308"><span class="lineNum">     308 </span>            :  *</a>
+<a name="309"><span class="lineNum">     309 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="310"><span class="lineNum">     310 </span>            :  * top-left corner).</a>
+<a name="311"><span class="lineNum">     311 </span>            :  *</a>
+<a name="312"><span class="lineNum">     312 </span>            :  * Drivers can use this function for RGB332 devices that don't support XRGB8888 natively.</a>
+<a name="313"><span class="lineNum">     313 </span>            :  */</a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_rgb332(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="315"><span class="lineNum">     315 </span>            :                                const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="316"><span class="lineNum">     316 </span>            :                                const struct drm_rect *clip)</a>
+<a name="317"><span class="lineNum">     317 </span>            : {</a>
+<a name="318"><span class="lineNum">     318 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="319"><span class="lineNum">     319 </span>            :                 1,</a>
+<a name="320"><span class="lineNum">     320 </span>            :         };</a>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="323"><span class="lineNum">     323 </span>            :                     drm_fb_xrgb8888_to_rgb332_line);</a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">          4 : }</span></a>
+<a name="325"><span class="lineNum">     325 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb332);</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_rgb565_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="328"><span class="lineNum">     328 </span>            : {</a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">          9 :         __le16 *dbuf16 = dbuf;</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="331"><span class="lineNum">     331 </span>            :         unsigned int x;</a>
+<a name="332"><span class="lineNum">     332 </span>            :         u16 val16;</a>
+<a name="333"><span class="lineNum">     333 </span>            :         u32 pix;</a>
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">         57 :                 val16 = ((pix &amp; 0x00F80000) &gt;&gt; 8) |</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineCov">         19 :                         ((pix &amp; 0x0000FC00) &gt;&gt; 5) |</span></a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">         19 :                         ((pix &amp; 0x000000F8) &gt;&gt; 3);</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">         19 :                 dbuf16[x] = cpu_to_le16(val16);</span></a>
+<a name="341"><span class="lineNum">     341 </span>            :         }</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">          9 : }</span></a>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<a name="344"><span class="lineNum">     344 </span>            : /* TODO: implement this helper as conversion to RGB565|BIG_ENDIAN */</a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_rgb565_swab_line(void *dbuf, const void *sbuf,</span></a>
+<a name="346"><span class="lineNum">     346 </span>            :                                                 unsigned int pixels)</a>
+<a name="347"><span class="lineNum">     347 </span>            : {</a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">          9 :         __le16 *dbuf16 = dbuf;</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="350"><span class="lineNum">     350 </span>            :         unsigned int x;</a>
+<a name="351"><span class="lineNum">     351 </span>            :         u16 val16;</a>
+<a name="352"><span class="lineNum">     352 </span>            :         u32 pix;</a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineCov">         57 :                 val16 = ((pix &amp; 0x00F80000) &gt;&gt; 8) |</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">         19 :                         ((pix &amp; 0x0000FC00) &gt;&gt; 5) |</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">         19 :                         ((pix &amp; 0x000000F8) &gt;&gt; 3);</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">         38 :                 dbuf16[x] = cpu_to_le16(swab16(val16));</span></a>
+<a name="360"><span class="lineNum">     360 </span>            :         }</a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">          9 : }</span></a>
+<a name="362"><span class="lineNum">     362 </span>            : </a>
+<a name="363"><span class="lineNum">     363 </span>            : /**</a>
+<a name="364"><span class="lineNum">     364 </span>            :  * drm_fb_xrgb8888_to_rgb565 - Convert XRGB8888 to RGB565 clip buffer</a>
+<a name="365"><span class="lineNum">     365 </span>            :  * @dst: Array of RGB565 destination buffers</a>
+<a name="366"><span class="lineNum">     366 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="367"><span class="lineNum">     367 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="368"><span class="lineNum">     368 </span>            :  * @src: Array of XRGB8888 source buffer</a>
+<a name="369"><span class="lineNum">     369 </span>            :  * @fb: DRM framebuffer</a>
+<a name="370"><span class="lineNum">     370 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="371"><span class="lineNum">     371 </span>            :  * @swab: Swap bytes</a>
+<a name="372"><span class="lineNum">     372 </span>            :  *</a>
+<a name="373"><span class="lineNum">     373 </span>            :  * This function copies parts of a framebuffer to display memory and converts the</a>
+<a name="374"><span class="lineNum">     374 </span>            :  * color format during the process. Destination and framebuffer formats must match. The</a>
+<a name="375"><span class="lineNum">     375 </span>            :  * parameters @dst, @dst_pitch and @src refer to arrays. Each array must have at</a>
+<a name="376"><span class="lineNum">     376 </span>            :  * least as many entries as there are planes in @fb's format. Each entry stores the</a>
+<a name="377"><span class="lineNum">     377 </span>            :  * value for the format's respective color plane at the same index.</a>
+<a name="378"><span class="lineNum">     378 </span>            :  *</a>
+<a name="379"><span class="lineNum">     379 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="380"><span class="lineNum">     380 </span>            :  * top-left corner).</a>
+<a name="381"><span class="lineNum">     381 </span>            :  *</a>
+<a name="382"><span class="lineNum">     382 </span>            :  * Drivers can use this function for RGB565 devices that don't support XRGB8888 natively.</a>
+<a name="383"><span class="lineNum">     383 </span>            :  */</a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">          8 : void drm_fb_xrgb8888_to_rgb565(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="385"><span class="lineNum">     385 </span>            :                                const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="386"><span class="lineNum">     386 </span>            :                                const struct drm_rect *clip, bool swab)</a>
+<a name="387"><span class="lineNum">     387 </span>            : {</a>
+<a name="388"><span class="lineNum">     388 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="389"><span class="lineNum">     389 </span>            :                 2,</a>
+<a name="390"><span class="lineNum">     390 </span>            :         };</a>
+<a name="391"><span class="lineNum">     391 </span>            : </a>
+<a name="392"><span class="lineNum">     392 </span>            :         void (*xfrm_line)(void *dbuf, const void *sbuf, unsigned int npixels);</a>
+<a name="393"><span class="lineNum">     393 </span>            : </a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineCov">          8 :         if (swab)</span></a>
+<a name="395"><span class="lineNum">     395 </span>            :                 xfrm_line = drm_fb_xrgb8888_to_rgb565_swab_line;</a>
+<a name="396"><span class="lineNum">     396 </span>            :         else</a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineCov">          4 :                 xfrm_line = drm_fb_xrgb8888_to_rgb565_line;</span></a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">          8 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, xfrm_line);</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineCov">          8 : }</span></a>
+<a name="401"><span class="lineNum">     401 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);</a>
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_xrgb1555_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="404"><span class="lineNum">     404 </span>            : {</a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineCov">          9 :         __le16 *dbuf16 = dbuf;</span></a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="407"><span class="lineNum">     407 </span>            :         unsigned int x;</a>
+<a name="408"><span class="lineNum">     408 </span>            :         u16 val16;</a>
+<a name="409"><span class="lineNum">     409 </span>            :         u32 pix;</a>
+<a name="410"><span class="lineNum">     410 </span>            : </a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineCov">         57 :                 val16 = ((pix &amp; 0x00f80000) &gt;&gt; 9) |</span></a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">         19 :                         ((pix &amp; 0x0000f800) &gt;&gt; 6) |</span></a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">         19 :                         ((pix &amp; 0x000000f8) &gt;&gt; 3);</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineCov">         19 :                 dbuf16[x] = cpu_to_le16(val16);</span></a>
+<a name="417"><span class="lineNum">     417 </span>            :         }</a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineCov">          9 : }</span></a>
+<a name="419"><span class="lineNum">     419 </span>            : </a>
+<a name="420"><span class="lineNum">     420 </span>            : /**</a>
+<a name="421"><span class="lineNum">     421 </span>            :  * drm_fb_xrgb8888_to_xrgb1555 - Convert XRGB8888 to XRGB1555 clip buffer</a>
+<a name="422"><span class="lineNum">     422 </span>            :  * @dst: Array of XRGB1555 destination buffers</a>
+<a name="423"><span class="lineNum">     423 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="424"><span class="lineNum">     424 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="425"><span class="lineNum">     425 </span>            :  * @src: Array of XRGB8888 source buffer</a>
+<a name="426"><span class="lineNum">     426 </span>            :  * @fb: DRM framebuffer</a>
+<a name="427"><span class="lineNum">     427 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="428"><span class="lineNum">     428 </span>            :  *</a>
+<a name="429"><span class="lineNum">     429 </span>            :  * This function copies parts of a framebuffer to display memory and converts</a>
+<a name="430"><span class="lineNum">     430 </span>            :  * the color format during the process. The parameters @dst, @dst_pitch and</a>
+<a name="431"><span class="lineNum">     431 </span>            :  * @src refer to arrays. Each array must have at least as many entries as</a>
+<a name="432"><span class="lineNum">     432 </span>            :  * there are planes in @fb's format. Each entry stores the value for the</a>
+<a name="433"><span class="lineNum">     433 </span>            :  * format's respective color plane at the same index.</a>
+<a name="434"><span class="lineNum">     434 </span>            :  *</a>
+<a name="435"><span class="lineNum">     435 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="436"><span class="lineNum">     436 </span>            :  * top-left corner).</a>
+<a name="437"><span class="lineNum">     437 </span>            :  *</a>
+<a name="438"><span class="lineNum">     438 </span>            :  * Drivers can use this function for XRGB1555 devices that don't support</a>
+<a name="439"><span class="lineNum">     439 </span>            :  * XRGB8888 natively.</a>
+<a name="440"><span class="lineNum">     440 </span>            :  */</a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_xrgb1555(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="442"><span class="lineNum">     442 </span>            :                                  const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="443"><span class="lineNum">     443 </span>            :                                  const struct drm_rect *clip)</a>
+<a name="444"><span class="lineNum">     444 </span>            : {</a>
+<a name="445"><span class="lineNum">     445 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="446"><span class="lineNum">     446 </span>            :                 2,</a>
+<a name="447"><span class="lineNum">     447 </span>            :         };</a>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="450"><span class="lineNum">     450 </span>            :                     drm_fb_xrgb8888_to_xrgb1555_line);</a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineCov">          4 : }</span></a>
+<a name="452"><span class="lineNum">     452 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_xrgb1555);</a>
+<a name="453"><span class="lineNum">     453 </span>            : </a>
+<a name="454"><span class="lineNum">     454 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_argb1555_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="455"><span class="lineNum">     455 </span>            : {</a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineCov">          9 :         __le16 *dbuf16 = dbuf;</span></a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="458"><span class="lineNum">     458 </span>            :         unsigned int x;</a>
+<a name="459"><span class="lineNum">     459 </span>            :         u16 val16;</a>
+<a name="460"><span class="lineNum">     460 </span>            :         u32 pix;</a>
+<a name="461"><span class="lineNum">     461 </span>            : </a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineCov">         38 :                 val16 = BIT(15) | /* set alpha bit */</span></a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineCov">         19 :                         ((pix &amp; 0x00f80000) &gt;&gt; 9) |</span></a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineCov">         19 :                         ((pix &amp; 0x0000f800) &gt;&gt; 6) |</span></a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineCov">         19 :                         ((pix &amp; 0x000000f8) &gt;&gt; 3);</span></a>
+<a name="468"><span class="lineNum">     468 </span><span class="lineCov">         19 :                 dbuf16[x] = cpu_to_le16(val16);</span></a>
+<a name="469"><span class="lineNum">     469 </span>            :         }</a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineCov">          9 : }</span></a>
+<a name="471"><span class="lineNum">     471 </span>            : </a>
+<a name="472"><span class="lineNum">     472 </span>            : /**</a>
+<a name="473"><span class="lineNum">     473 </span>            :  * drm_fb_xrgb8888_to_argb1555 - Convert XRGB8888 to ARGB1555 clip buffer</a>
+<a name="474"><span class="lineNum">     474 </span>            :  * @dst: Array of ARGB1555 destination buffers</a>
+<a name="475"><span class="lineNum">     475 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="476"><span class="lineNum">     476 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="477"><span class="lineNum">     477 </span>            :  * @src: Array of XRGB8888 source buffer</a>
+<a name="478"><span class="lineNum">     478 </span>            :  * @fb: DRM framebuffer</a>
+<a name="479"><span class="lineNum">     479 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="480"><span class="lineNum">     480 </span>            :  *</a>
+<a name="481"><span class="lineNum">     481 </span>            :  * This function copies parts of a framebuffer to display memory and converts</a>
+<a name="482"><span class="lineNum">     482 </span>            :  * the color format during the process. The parameters @dst, @dst_pitch and</a>
+<a name="483"><span class="lineNum">     483 </span>            :  * @src refer to arrays. Each array must have at least as many entries as</a>
+<a name="484"><span class="lineNum">     484 </span>            :  * there are planes in @fb's format. Each entry stores the value for the</a>
+<a name="485"><span class="lineNum">     485 </span>            :  * format's respective color plane at the same index.</a>
+<a name="486"><span class="lineNum">     486 </span>            :  *</a>
+<a name="487"><span class="lineNum">     487 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="488"><span class="lineNum">     488 </span>            :  * top-left corner).</a>
+<a name="489"><span class="lineNum">     489 </span>            :  *</a>
+<a name="490"><span class="lineNum">     490 </span>            :  * Drivers can use this function for ARGB1555 devices that don't support</a>
+<a name="491"><span class="lineNum">     491 </span>            :  * XRGB8888 natively. It sets an opaque alpha channel as part of the conversion.</a>
+<a name="492"><span class="lineNum">     492 </span>            :  */</a>
+<a name="493"><span class="lineNum">     493 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_argb1555(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="494"><span class="lineNum">     494 </span>            :                                  const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="495"><span class="lineNum">     495 </span>            :                                  const struct drm_rect *clip)</a>
+<a name="496"><span class="lineNum">     496 </span>            : {</a>
+<a name="497"><span class="lineNum">     497 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="498"><span class="lineNum">     498 </span>            :                 2,</a>
+<a name="499"><span class="lineNum">     499 </span>            :         };</a>
+<a name="500"><span class="lineNum">     500 </span>            : </a>
+<a name="501"><span class="lineNum">     501 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="502"><span class="lineNum">     502 </span>            :                     drm_fb_xrgb8888_to_argb1555_line);</a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineCov">          4 : }</span></a>
+<a name="504"><span class="lineNum">     504 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_argb1555);</a>
+<a name="505"><span class="lineNum">     505 </span>            : </a>
+<a name="506"><span class="lineNum">     506 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_rgba5551_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="507"><span class="lineNum">     507 </span>            : {</a>
+<a name="508"><span class="lineNum">     508 </span><span class="lineCov">          9 :         __le16 *dbuf16 = dbuf;</span></a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="510"><span class="lineNum">     510 </span>            :         unsigned int x;</a>
+<a name="511"><span class="lineNum">     511 </span>            :         u16 val16;</a>
+<a name="512"><span class="lineNum">     512 </span>            :         u32 pix;</a>
+<a name="513"><span class="lineNum">     513 </span>            : </a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="515"><span class="lineNum">     515 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineCov">         57 :                 val16 = ((pix &amp; 0x00f80000) &gt;&gt; 8) |</span></a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineCov">         38 :                         ((pix &amp; 0x0000f800) &gt;&gt; 5) |</span></a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineCov">         19 :                         ((pix &amp; 0x000000f8) &gt;&gt; 2) |</span></a>
+<a name="519"><span class="lineNum">     519 </span>            :                         BIT(0); /* set alpha bit */</a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineCov">         19 :                 dbuf16[x] = cpu_to_le16(val16);</span></a>
+<a name="521"><span class="lineNum">     521 </span>            :         }</a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineCov">          9 : }</span></a>
+<a name="523"><span class="lineNum">     523 </span>            : </a>
+<a name="524"><span class="lineNum">     524 </span>            : /**</a>
+<a name="525"><span class="lineNum">     525 </span>            :  * drm_fb_xrgb8888_to_rgba5551 - Convert XRGB8888 to RGBA5551 clip buffer</a>
+<a name="526"><span class="lineNum">     526 </span>            :  * @dst: Array of RGBA5551 destination buffers</a>
+<a name="527"><span class="lineNum">     527 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="528"><span class="lineNum">     528 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="529"><span class="lineNum">     529 </span>            :  * @src: Array of XRGB8888 source buffer</a>
+<a name="530"><span class="lineNum">     530 </span>            :  * @fb: DRM framebuffer</a>
+<a name="531"><span class="lineNum">     531 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="532"><span class="lineNum">     532 </span>            :  *</a>
+<a name="533"><span class="lineNum">     533 </span>            :  * This function copies parts of a framebuffer to display memory and converts</a>
+<a name="534"><span class="lineNum">     534 </span>            :  * the color format during the process. The parameters @dst, @dst_pitch and</a>
+<a name="535"><span class="lineNum">     535 </span>            :  * @src refer to arrays. Each array must have at least as many entries as</a>
+<a name="536"><span class="lineNum">     536 </span>            :  * there are planes in @fb's format. Each entry stores the value for the</a>
+<a name="537"><span class="lineNum">     537 </span>            :  * format's respective color plane at the same index.</a>
+<a name="538"><span class="lineNum">     538 </span>            :  *</a>
+<a name="539"><span class="lineNum">     539 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="540"><span class="lineNum">     540 </span>            :  * top-left corner).</a>
+<a name="541"><span class="lineNum">     541 </span>            :  *</a>
+<a name="542"><span class="lineNum">     542 </span>            :  * Drivers can use this function for RGBA5551 devices that don't support</a>
+<a name="543"><span class="lineNum">     543 </span>            :  * XRGB8888 natively. It sets an opaque alpha channel as part of the conversion.</a>
+<a name="544"><span class="lineNum">     544 </span>            :  */</a>
+<a name="545"><span class="lineNum">     545 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_rgba5551(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="546"><span class="lineNum">     546 </span>            :                                  const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="547"><span class="lineNum">     547 </span>            :                                  const struct drm_rect *clip)</a>
+<a name="548"><span class="lineNum">     548 </span>            : {</a>
+<a name="549"><span class="lineNum">     549 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="550"><span class="lineNum">     550 </span>            :                 2,</a>
+<a name="551"><span class="lineNum">     551 </span>            :         };</a>
+<a name="552"><span class="lineNum">     552 </span>            : </a>
+<a name="553"><span class="lineNum">     553 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="554"><span class="lineNum">     554 </span>            :                     drm_fb_xrgb8888_to_rgba5551_line);</a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineCov">          4 : }</span></a>
+<a name="556"><span class="lineNum">     556 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgba5551);</a>
+<a name="557"><span class="lineNum">     557 </span>            : </a>
+<a name="558"><span class="lineNum">     558 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_rgb888_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="559"><span class="lineNum">     559 </span>            : {</a>
+<a name="560"><span class="lineNum">     560 </span><span class="lineCov">          9 :         u8 *dbuf8 = dbuf;</span></a>
+<a name="561"><span class="lineNum">     561 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="562"><span class="lineNum">     562 </span>            :         unsigned int x;</a>
+<a name="563"><span class="lineNum">     563 </span>            :         u32 pix;</a>
+<a name="564"><span class="lineNum">     564 </span>            : </a>
+<a name="565"><span class="lineNum">     565 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="566"><span class="lineNum">     566 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="567"><span class="lineNum">     567 </span>            :                 /* write blue-green-red to output in little endianness */</a>
+<a name="568"><span class="lineNum">     568 </span><span class="lineCov">         19 :                 *dbuf8++ = (pix &amp; 0x000000FF) &gt;&gt;  0;</span></a>
+<a name="569"><span class="lineNum">     569 </span><span class="lineCov">         19 :                 *dbuf8++ = (pix &amp; 0x0000FF00) &gt;&gt;  8;</span></a>
+<a name="570"><span class="lineNum">     570 </span><span class="lineCov">         19 :                 *dbuf8++ = (pix &amp; 0x00FF0000) &gt;&gt; 16;</span></a>
+<a name="571"><span class="lineNum">     571 </span>            :         }</a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineCov">          9 : }</span></a>
+<a name="573"><span class="lineNum">     573 </span>            : </a>
+<a name="574"><span class="lineNum">     574 </span>            : /**</a>
+<a name="575"><span class="lineNum">     575 </span>            :  * drm_fb_xrgb8888_to_rgb888 - Convert XRGB8888 to RGB888 clip buffer</a>
+<a name="576"><span class="lineNum">     576 </span>            :  * @dst: Array of RGB888 destination buffers</a>
+<a name="577"><span class="lineNum">     577 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="578"><span class="lineNum">     578 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="579"><span class="lineNum">     579 </span>            :  * @src: Array of XRGB8888 source buffers</a>
+<a name="580"><span class="lineNum">     580 </span>            :  * @fb: DRM framebuffer</a>
+<a name="581"><span class="lineNum">     581 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="582"><span class="lineNum">     582 </span>            :  *</a>
+<a name="583"><span class="lineNum">     583 </span>            :  * This function copies parts of a framebuffer to display memory and converts the</a>
+<a name="584"><span class="lineNum">     584 </span>            :  * color format during the process. Destination and framebuffer formats must match. The</a>
+<a name="585"><span class="lineNum">     585 </span>            :  * parameters @dst, @dst_pitch and @src refer to arrays. Each array must have at</a>
+<a name="586"><span class="lineNum">     586 </span>            :  * least as many entries as there are planes in @fb's format. Each entry stores the</a>
+<a name="587"><span class="lineNum">     587 </span>            :  * value for the format's respective color plane at the same index.</a>
+<a name="588"><span class="lineNum">     588 </span>            :  *</a>
+<a name="589"><span class="lineNum">     589 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="590"><span class="lineNum">     590 </span>            :  * top-left corner).</a>
+<a name="591"><span class="lineNum">     591 </span>            :  *</a>
+<a name="592"><span class="lineNum">     592 </span>            :  * Drivers can use this function for RGB888 devices that don't natively</a>
+<a name="593"><span class="lineNum">     593 </span>            :  * support XRGB8888.</a>
+<a name="594"><span class="lineNum">     594 </span>            :  */</a>
+<a name="595"><span class="lineNum">     595 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_rgb888(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="596"><span class="lineNum">     596 </span>            :                                const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="597"><span class="lineNum">     597 </span>            :                                const struct drm_rect *clip)</a>
+<a name="598"><span class="lineNum">     598 </span>            : {</a>
+<a name="599"><span class="lineNum">     599 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="600"><span class="lineNum">     600 </span>            :                 3,</a>
+<a name="601"><span class="lineNum">     601 </span>            :         };</a>
+<a name="602"><span class="lineNum">     602 </span>            : </a>
+<a name="603"><span class="lineNum">     603 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="604"><span class="lineNum">     604 </span>            :                     drm_fb_xrgb8888_to_rgb888_line);</a>
+<a name="605"><span class="lineNum">     605 </span><span class="lineCov">          4 : }</span></a>
+<a name="606"><span class="lineNum">     606 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888);</a>
+<a name="607"><span class="lineNum">     607 </span>            : </a>
+<a name="608"><span class="lineNum">     608 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_argb8888_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="609"><span class="lineNum">     609 </span>            : {</a>
+<a name="610"><span class="lineNum">     610 </span><span class="lineCov">          9 :         __le32 *dbuf32 = dbuf;</span></a>
+<a name="611"><span class="lineNum">     611 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="612"><span class="lineNum">     612 </span>            :         unsigned int x;</a>
+<a name="613"><span class="lineNum">     613 </span>            :         u32 pix;</a>
+<a name="614"><span class="lineNum">     614 </span>            : </a>
+<a name="615"><span class="lineNum">     615 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="616"><span class="lineNum">     616 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="617"><span class="lineNum">     617 </span><span class="lineCov">         19 :                 pix |= GENMASK(31, 24); /* fill alpha bits */</span></a>
+<a name="618"><span class="lineNum">     618 </span><span class="lineCov">         19 :                 dbuf32[x] = cpu_to_le32(pix);</span></a>
+<a name="619"><span class="lineNum">     619 </span>            :         }</a>
+<a name="620"><span class="lineNum">     620 </span><span class="lineCov">          9 : }</span></a>
+<a name="621"><span class="lineNum">     621 </span>            : </a>
+<a name="622"><span class="lineNum">     622 </span>            : /**</a>
+<a name="623"><span class="lineNum">     623 </span>            :  * drm_fb_xrgb8888_to_argb8888 - Convert XRGB8888 to ARGB8888 clip buffer</a>
+<a name="624"><span class="lineNum">     624 </span>            :  * @dst: Array of ARGB8888 destination buffers</a>
+<a name="625"><span class="lineNum">     625 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="626"><span class="lineNum">     626 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="627"><span class="lineNum">     627 </span>            :  * @src: Array of XRGB8888 source buffer</a>
+<a name="628"><span class="lineNum">     628 </span>            :  * @fb: DRM framebuffer</a>
+<a name="629"><span class="lineNum">     629 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="630"><span class="lineNum">     630 </span>            :  *</a>
+<a name="631"><span class="lineNum">     631 </span>            :  * This function copies parts of a framebuffer to display memory and converts the</a>
+<a name="632"><span class="lineNum">     632 </span>            :  * color format during the process. The parameters @dst, @dst_pitch and @src refer</a>
+<a name="633"><span class="lineNum">     633 </span>            :  * to arrays. Each array must have at least as many entries as there are planes in</a>
+<a name="634"><span class="lineNum">     634 </span>            :  * @fb's format. Each entry stores the value for the format's respective color plane</a>
+<a name="635"><span class="lineNum">     635 </span>            :  * at the same index.</a>
+<a name="636"><span class="lineNum">     636 </span>            :  *</a>
+<a name="637"><span class="lineNum">     637 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="638"><span class="lineNum">     638 </span>            :  * top-left corner).</a>
+<a name="639"><span class="lineNum">     639 </span>            :  *</a>
+<a name="640"><span class="lineNum">     640 </span>            :  * Drivers can use this function for ARGB8888 devices that don't support XRGB8888</a>
+<a name="641"><span class="lineNum">     641 </span>            :  * natively. It sets an opaque alpha channel as part of the conversion.</a>
+<a name="642"><span class="lineNum">     642 </span>            :  */</a>
+<a name="643"><span class="lineNum">     643 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_argb8888(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="644"><span class="lineNum">     644 </span>            :                                  const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="645"><span class="lineNum">     645 </span>            :                                  const struct drm_rect *clip)</a>
+<a name="646"><span class="lineNum">     646 </span>            : {</a>
+<a name="647"><span class="lineNum">     647 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="648"><span class="lineNum">     648 </span>            :                 4,</a>
+<a name="649"><span class="lineNum">     649 </span>            :         };</a>
+<a name="650"><span class="lineNum">     650 </span>            : </a>
+<a name="651"><span class="lineNum">     651 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="652"><span class="lineNum">     652 </span>            :                     drm_fb_xrgb8888_to_argb8888_line);</a>
+<a name="653"><span class="lineNum">     653 </span><span class="lineCov">          4 : }</span></a>
+<a name="654"><span class="lineNum">     654 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_argb8888);</a>
+<a name="655"><span class="lineNum">     655 </span>            : </a>
+<a name="656"><span class="lineNum">     656 </span><span class="lineNoCov">          0 : static void drm_fb_xrgb8888_to_abgr8888_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="657"><span class="lineNum">     657 </span>            : {</a>
+<a name="658"><span class="lineNum">     658 </span><span class="lineNoCov">          0 :         __le32 *dbuf32 = dbuf;</span></a>
+<a name="659"><span class="lineNum">     659 </span><span class="lineNoCov">          0 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="660"><span class="lineNum">     660 </span>            :         unsigned int x;</a>
+<a name="661"><span class="lineNum">     661 </span>            :         u32 pix;</a>
+<a name="662"><span class="lineNum">     662 </span>            : </a>
+<a name="663"><span class="lineNum">     663 </span><span class="lineNoCov">          0 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="664"><span class="lineNum">     664 </span><span class="lineNoCov">          0 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="665"><span class="lineNum">     665 </span><span class="lineNoCov">          0 :                 pix = ((pix &amp; 0x00ff0000) &gt;&gt; 16) &lt;&lt;  0 |</span></a>
+<a name="666"><span class="lineNum">     666 </span><span class="lineNoCov">          0 :                       ((pix &amp; 0x0000ff00) &gt;&gt;  8) &lt;&lt;  8 |</span></a>
+<a name="667"><span class="lineNum">     667 </span><span class="lineNoCov">          0 :                       ((pix &amp; 0x000000ff) &gt;&gt;  0) &lt;&lt; 16 |</span></a>
+<a name="668"><span class="lineNum">     668 </span>            :                       GENMASK(31, 24); /* fill alpha bits */</a>
+<a name="669"><span class="lineNum">     669 </span><span class="lineNoCov">          0 :                 *dbuf32++ = cpu_to_le32(pix);</span></a>
+<a name="670"><span class="lineNum">     670 </span>            :         }</a>
+<a name="671"><span class="lineNum">     671 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="672"><span class="lineNum">     672 </span>            : </a>
+<a name="673"><span class="lineNum">     673 </span>            : static void drm_fb_xrgb8888_to_abgr8888(struct iosys_map *dst, const unsigned int *dst_pitch,</a>
+<a name="674"><span class="lineNum">     674 </span>            :                                         const struct iosys_map *src,</a>
+<a name="675"><span class="lineNum">     675 </span>            :                                         const struct drm_framebuffer *fb,</a>
+<a name="676"><span class="lineNum">     676 </span>            :                                         const struct drm_rect *clip)</a>
+<a name="677"><span class="lineNum">     677 </span>            : {</a>
+<a name="678"><span class="lineNum">     678 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="679"><span class="lineNum">     679 </span>            :                 4,</a>
+<a name="680"><span class="lineNum">     680 </span>            :         };</a>
+<a name="681"><span class="lineNum">     681 </span>            : </a>
+<a name="682"><span class="lineNum">     682 </span><span class="lineNoCov">          0 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="683"><span class="lineNum">     683 </span>            :                     drm_fb_xrgb8888_to_abgr8888_line);</a>
+<a name="684"><span class="lineNum">     684 </span>            : }</a>
+<a name="685"><span class="lineNum">     685 </span>            : </a>
+<a name="686"><span class="lineNum">     686 </span><span class="lineNoCov">          0 : static void drm_fb_xrgb8888_to_xbgr8888_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="687"><span class="lineNum">     687 </span>            : {</a>
+<a name="688"><span class="lineNum">     688 </span><span class="lineNoCov">          0 :         __le32 *dbuf32 = dbuf;</span></a>
+<a name="689"><span class="lineNum">     689 </span><span class="lineNoCov">          0 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="690"><span class="lineNum">     690 </span>            :         unsigned int x;</a>
+<a name="691"><span class="lineNum">     691 </span>            :         u32 pix;</a>
+<a name="692"><span class="lineNum">     692 </span>            : </a>
+<a name="693"><span class="lineNum">     693 </span><span class="lineNoCov">          0 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="694"><span class="lineNum">     694 </span><span class="lineNoCov">          0 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="695"><span class="lineNum">     695 </span><span class="lineNoCov">          0 :                 pix = ((pix &amp; 0x00ff0000) &gt;&gt; 16) &lt;&lt;  0 |</span></a>
+<a name="696"><span class="lineNum">     696 </span><span class="lineNoCov">          0 :                       ((pix &amp; 0x0000ff00) &gt;&gt;  8) &lt;&lt;  8 |</span></a>
+<a name="697"><span class="lineNum">     697 </span><span class="lineNoCov">          0 :                       ((pix &amp; 0x000000ff) &gt;&gt;  0) &lt;&lt; 16 |</span></a>
+<a name="698"><span class="lineNum">     698 </span><span class="lineNoCov">          0 :                       ((pix &amp; 0xff000000) &gt;&gt; 24) &lt;&lt; 24;</span></a>
+<a name="699"><span class="lineNum">     699 </span><span class="lineNoCov">          0 :                 *dbuf32++ = cpu_to_le32(pix);</span></a>
+<a name="700"><span class="lineNum">     700 </span>            :         }</a>
+<a name="701"><span class="lineNum">     701 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="702"><span class="lineNum">     702 </span>            : </a>
+<a name="703"><span class="lineNum">     703 </span>            : static void drm_fb_xrgb8888_to_xbgr8888(struct iosys_map *dst, const unsigned int *dst_pitch,</a>
+<a name="704"><span class="lineNum">     704 </span>            :                                         const struct iosys_map *src,</a>
+<a name="705"><span class="lineNum">     705 </span>            :                                         const struct drm_framebuffer *fb,</a>
+<a name="706"><span class="lineNum">     706 </span>            :                                         const struct drm_rect *clip)</a>
+<a name="707"><span class="lineNum">     707 </span>            : {</a>
+<a name="708"><span class="lineNum">     708 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="709"><span class="lineNum">     709 </span>            :                 4,</a>
+<a name="710"><span class="lineNum">     710 </span>            :         };</a>
+<a name="711"><span class="lineNum">     711 </span>            : </a>
+<a name="712"><span class="lineNum">     712 </span><span class="lineNoCov">          0 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="713"><span class="lineNum">     713 </span>            :                     drm_fb_xrgb8888_to_xbgr8888_line);</a>
+<a name="714"><span class="lineNum">     714 </span>            : }</a>
+<a name="715"><span class="lineNum">     715 </span>            : </a>
+<a name="716"><span class="lineNum">     716 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_xrgb2101010_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="717"><span class="lineNum">     717 </span>            : {</a>
+<a name="718"><span class="lineNum">     718 </span><span class="lineCov">          9 :         __le32 *dbuf32 = dbuf;</span></a>
+<a name="719"><span class="lineNum">     719 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="720"><span class="lineNum">     720 </span>            :         unsigned int x;</a>
+<a name="721"><span class="lineNum">     721 </span>            :         u32 val32;</a>
+<a name="722"><span class="lineNum">     722 </span>            :         u32 pix;</a>
+<a name="723"><span class="lineNum">     723 </span>            : </a>
+<a name="724"><span class="lineNum">     724 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="725"><span class="lineNum">     725 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="726"><span class="lineNum">     726 </span><span class="lineCov">         57 :                 val32 = ((pix &amp; 0x000000FF) &lt;&lt; 2) |</span></a>
+<a name="727"><span class="lineNum">     727 </span><span class="lineCov">         19 :                         ((pix &amp; 0x0000FF00) &lt;&lt; 4) |</span></a>
+<a name="728"><span class="lineNum">     728 </span><span class="lineCov">         19 :                         ((pix &amp; 0x00FF0000) &lt;&lt; 6);</span></a>
+<a name="729"><span class="lineNum">     729 </span><span class="lineCov">         19 :                 pix = val32 | ((val32 &gt;&gt; 8) &amp; 0x00300C03);</span></a>
+<a name="730"><span class="lineNum">     730 </span><span class="lineCov">         19 :                 *dbuf32++ = cpu_to_le32(pix);</span></a>
+<a name="731"><span class="lineNum">     731 </span>            :         }</a>
+<a name="732"><span class="lineNum">     732 </span><span class="lineCov">          9 : }</span></a>
+<a name="733"><span class="lineNum">     733 </span>            : </a>
+<a name="734"><span class="lineNum">     734 </span>            : /**</a>
+<a name="735"><span class="lineNum">     735 </span>            :  * drm_fb_xrgb8888_to_xrgb2101010 - Convert XRGB8888 to XRGB2101010 clip buffer</a>
+<a name="736"><span class="lineNum">     736 </span>            :  * @dst: Array of XRGB2101010 destination buffers</a>
+<a name="737"><span class="lineNum">     737 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="738"><span class="lineNum">     738 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="739"><span class="lineNum">     739 </span>            :  * @src: Array of XRGB8888 source buffers</a>
+<a name="740"><span class="lineNum">     740 </span>            :  * @fb: DRM framebuffer</a>
+<a name="741"><span class="lineNum">     741 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="742"><span class="lineNum">     742 </span>            :  *</a>
+<a name="743"><span class="lineNum">     743 </span>            :  * This function copies parts of a framebuffer to display memory and converts the</a>
+<a name="744"><span class="lineNum">     744 </span>            :  * color format during the process. Destination and framebuffer formats must match. The</a>
+<a name="745"><span class="lineNum">     745 </span>            :  * parameters @dst, @dst_pitch and @src refer to arrays. Each array must have at</a>
+<a name="746"><span class="lineNum">     746 </span>            :  * least as many entries as there are planes in @fb's format. Each entry stores the</a>
+<a name="747"><span class="lineNum">     747 </span>            :  * value for the format's respective color plane at the same index.</a>
+<a name="748"><span class="lineNum">     748 </span>            :  *</a>
+<a name="749"><span class="lineNum">     749 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="750"><span class="lineNum">     750 </span>            :  * top-left corner).</a>
+<a name="751"><span class="lineNum">     751 </span>            :  *</a>
+<a name="752"><span class="lineNum">     752 </span>            :  * Drivers can use this function for XRGB2101010 devices that don't support XRGB8888</a>
+<a name="753"><span class="lineNum">     753 </span>            :  * natively.</a>
+<a name="754"><span class="lineNum">     754 </span>            :  */</a>
+<a name="755"><span class="lineNum">     755 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_xrgb2101010(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="756"><span class="lineNum">     756 </span>            :                                     const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="757"><span class="lineNum">     757 </span>            :                                     const struct drm_rect *clip)</a>
+<a name="758"><span class="lineNum">     758 </span>            : {</a>
+<a name="759"><span class="lineNum">     759 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="760"><span class="lineNum">     760 </span>            :                 4,</a>
+<a name="761"><span class="lineNum">     761 </span>            :         };</a>
+<a name="762"><span class="lineNum">     762 </span>            : </a>
+<a name="763"><span class="lineNum">     763 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="764"><span class="lineNum">     764 </span>            :                     drm_fb_xrgb8888_to_xrgb2101010_line);</a>
+<a name="765"><span class="lineNum">     765 </span><span class="lineCov">          4 : }</span></a>
+<a name="766"><span class="lineNum">     766 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_xrgb2101010);</a>
+<a name="767"><span class="lineNum">     767 </span>            : </a>
+<a name="768"><span class="lineNum">     768 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_argb2101010_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="769"><span class="lineNum">     769 </span>            : {</a>
+<a name="770"><span class="lineNum">     770 </span><span class="lineCov">          9 :         __le32 *dbuf32 = dbuf;</span></a>
+<a name="771"><span class="lineNum">     771 </span><span class="lineCov">          9 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="772"><span class="lineNum">     772 </span>            :         unsigned int x;</a>
+<a name="773"><span class="lineNum">     773 </span>            :         u32 val32;</a>
+<a name="774"><span class="lineNum">     774 </span>            :         u32 pix;</a>
+<a name="775"><span class="lineNum">     775 </span>            : </a>
+<a name="776"><span class="lineNum">     776 </span><span class="lineCov">         28 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="777"><span class="lineNum">     777 </span><span class="lineCov">         19 :                 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="778"><span class="lineNum">     778 </span><span class="lineCov">         57 :                 val32 = ((pix &amp; 0x000000ff) &lt;&lt; 2) |</span></a>
+<a name="779"><span class="lineNum">     779 </span><span class="lineCov">         19 :                         ((pix &amp; 0x0000ff00) &lt;&lt; 4) |</span></a>
+<a name="780"><span class="lineNum">     780 </span><span class="lineCov">         19 :                         ((pix &amp; 0x00ff0000) &lt;&lt; 6);</span></a>
+<a name="781"><span class="lineNum">     781 </span><span class="lineCov">         19 :                 pix = GENMASK(31, 30) | /* set alpha bits */</span></a>
+<a name="782"><span class="lineNum">     782 </span><span class="lineCov">         19 :                       val32 | ((val32 &gt;&gt; 8) &amp; 0x00300c03);</span></a>
+<a name="783"><span class="lineNum">     783 </span><span class="lineCov">         19 :                 *dbuf32++ = cpu_to_le32(pix);</span></a>
+<a name="784"><span class="lineNum">     784 </span>            :         }</a>
+<a name="785"><span class="lineNum">     785 </span><span class="lineCov">          9 : }</span></a>
+<a name="786"><span class="lineNum">     786 </span>            : </a>
+<a name="787"><span class="lineNum">     787 </span>            : /**</a>
+<a name="788"><span class="lineNum">     788 </span>            :  * drm_fb_xrgb8888_to_argb2101010 - Convert XRGB8888 to ARGB2101010 clip buffer</a>
+<a name="789"><span class="lineNum">     789 </span>            :  * @dst: Array of ARGB2101010 destination buffers</a>
+<a name="790"><span class="lineNum">     790 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="791"><span class="lineNum">     791 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="792"><span class="lineNum">     792 </span>            :  * @src: Array of XRGB8888 source buffers</a>
+<a name="793"><span class="lineNum">     793 </span>            :  * @fb: DRM framebuffer</a>
+<a name="794"><span class="lineNum">     794 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="795"><span class="lineNum">     795 </span>            :  *</a>
+<a name="796"><span class="lineNum">     796 </span>            :  * This function copies parts of a framebuffer to display memory and converts</a>
+<a name="797"><span class="lineNum">     797 </span>            :  * the color format during the process. The parameters @dst, @dst_pitch and</a>
+<a name="798"><span class="lineNum">     798 </span>            :  * @src refer to arrays. Each array must have at least as many entries as</a>
+<a name="799"><span class="lineNum">     799 </span>            :  * there are planes in @fb's format. Each entry stores the value for the</a>
+<a name="800"><span class="lineNum">     800 </span>            :  * format's respective color plane at the same index.</a>
+<a name="801"><span class="lineNum">     801 </span>            :  *</a>
+<a name="802"><span class="lineNum">     802 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="803"><span class="lineNum">     803 </span>            :  * top-left corner).</a>
+<a name="804"><span class="lineNum">     804 </span>            :  *</a>
+<a name="805"><span class="lineNum">     805 </span>            :  * Drivers can use this function for ARGB2101010 devices that don't support XRGB8888</a>
+<a name="806"><span class="lineNum">     806 </span>            :  * natively.</a>
+<a name="807"><span class="lineNum">     807 </span>            :  */</a>
+<a name="808"><span class="lineNum">     808 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_argb2101010(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="809"><span class="lineNum">     809 </span>            :                                     const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="810"><span class="lineNum">     810 </span>            :                                     const struct drm_rect *clip)</a>
+<a name="811"><span class="lineNum">     811 </span>            : {</a>
+<a name="812"><span class="lineNum">     812 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="813"><span class="lineNum">     813 </span>            :                 4,</a>
+<a name="814"><span class="lineNum">     814 </span>            :         };</a>
+<a name="815"><span class="lineNum">     815 </span>            : </a>
+<a name="816"><span class="lineNum">     816 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="817"><span class="lineNum">     817 </span>            :                     drm_fb_xrgb8888_to_argb2101010_line);</a>
+<a name="818"><span class="lineNum">     818 </span><span class="lineCov">          4 : }</span></a>
+<a name="819"><span class="lineNum">     819 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_argb2101010);</a>
+<a name="820"><span class="lineNum">     820 </span>            : </a>
+<a name="821"><span class="lineNum">     821 </span><span class="lineCov">          9 : static void drm_fb_xrgb8888_to_gray8_line(void *dbuf, const void *sbuf, unsigned int pixels)</span></a>
+<a name="822"><span class="lineNum">     822 </span>            : {</a>
+<a name="823"><span class="lineNum">     823 </span><span class="lineCov">         18 :         u8 *dbuf8 = dbuf;</span></a>
+<a name="824"><span class="lineNum">     824 </span><span class="lineCov">         18 :         const __le32 *sbuf32 = sbuf;</span></a>
+<a name="825"><span class="lineNum">     825 </span>            :         unsigned int x;</a>
+<a name="826"><span class="lineNum">     826 </span>            : </a>
+<a name="827"><span class="lineNum">     827 </span><span class="lineCov">         56 :         for (x = 0; x &lt; pixels; x++) {</span></a>
+<a name="828"><span class="lineNum">     828 </span><span class="lineCov">         38 :                 u32 pix = le32_to_cpu(sbuf32[x]);</span></a>
+<a name="829"><span class="lineNum">     829 </span><span class="lineCov">         38 :                 u8 r = (pix &amp; 0x00ff0000) &gt;&gt; 16;</span></a>
+<a name="830"><span class="lineNum">     830 </span><span class="lineCov">         38 :                 u8 g = (pix &amp; 0x0000ff00) &gt;&gt; 8;</span></a>
+<a name="831"><span class="lineNum">     831 </span><span class="lineCov">         38 :                 u8 b =  pix &amp; 0x000000ff;</span></a>
+<a name="832"><span class="lineNum">     832 </span>            : </a>
+<a name="833"><span class="lineNum">     833 </span>            :                 /* ITU BT.601: Y = 0.299 R + 0.587 G + 0.114 B */</a>
+<a name="834"><span class="lineNum">     834 </span><span class="lineCov">         38 :                 *dbuf8++ = (3 * r + 6 * g + b) / 10;</span></a>
+<a name="835"><span class="lineNum">     835 </span>            :         }</a>
+<a name="836"><span class="lineNum">     836 </span><span class="lineCov">          9 : }</span></a>
+<a name="837"><span class="lineNum">     837 </span>            : </a>
+<a name="838"><span class="lineNum">     838 </span>            : /**</a>
+<a name="839"><span class="lineNum">     839 </span>            :  * drm_fb_xrgb8888_to_gray8 - Convert XRGB8888 to grayscale</a>
+<a name="840"><span class="lineNum">     840 </span>            :  * @dst: Array of 8-bit grayscale destination buffers</a>
+<a name="841"><span class="lineNum">     841 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="842"><span class="lineNum">     842 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="843"><span class="lineNum">     843 </span>            :  * @src: Array of XRGB8888 source buffers</a>
+<a name="844"><span class="lineNum">     844 </span>            :  * @fb: DRM framebuffer</a>
+<a name="845"><span class="lineNum">     845 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="846"><span class="lineNum">     846 </span>            :  *</a>
+<a name="847"><span class="lineNum">     847 </span>            :  * This function copies parts of a framebuffer to display memory and converts the</a>
+<a name="848"><span class="lineNum">     848 </span>            :  * color format during the process. Destination and framebuffer formats must match. The</a>
+<a name="849"><span class="lineNum">     849 </span>            :  * parameters @dst, @dst_pitch and @src refer to arrays. Each array must have at</a>
+<a name="850"><span class="lineNum">     850 </span>            :  * least as many entries as there are planes in @fb's format. Each entry stores the</a>
+<a name="851"><span class="lineNum">     851 </span>            :  * value for the format's respective color plane at the same index.</a>
+<a name="852"><span class="lineNum">     852 </span>            :  *</a>
+<a name="853"><span class="lineNum">     853 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="854"><span class="lineNum">     854 </span>            :  * top-left corner).</a>
+<a name="855"><span class="lineNum">     855 </span>            :  *</a>
+<a name="856"><span class="lineNum">     856 </span>            :  * DRM doesn't have native monochrome or grayscale support. Drivers can use this</a>
+<a name="857"><span class="lineNum">     857 </span>            :  * function for grayscale devices that don't support XRGB8888 natively.Such</a>
+<a name="858"><span class="lineNum">     858 </span>            :  * drivers can announce the commonly supported XR24 format to userspace and use</a>
+<a name="859"><span class="lineNum">     859 </span>            :  * this function to convert to the native format. Monochrome drivers will use the</a>
+<a name="860"><span class="lineNum">     860 </span>            :  * most significant bit, where 1 means foreground color and 0 background color.</a>
+<a name="861"><span class="lineNum">     861 </span>            :  * ITU BT.601 is being used for the RGB -&gt; luma (brightness) conversion.</a>
+<a name="862"><span class="lineNum">     862 </span>            :  */</a>
+<a name="863"><span class="lineNum">     863 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_gray8(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="864"><span class="lineNum">     864 </span>            :                               const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="865"><span class="lineNum">     865 </span>            :                               const struct drm_rect *clip)</a>
+<a name="866"><span class="lineNum">     866 </span>            : {</a>
+<a name="867"><span class="lineNum">     867 </span>            :         static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="868"><span class="lineNum">     868 </span>            :                 1,</a>
+<a name="869"><span class="lineNum">     869 </span>            :         };</a>
+<a name="870"><span class="lineNum">     870 </span>            : </a>
+<a name="871"><span class="lineNum">     871 </span><span class="lineCov">          4 :         drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,</span></a>
+<a name="872"><span class="lineNum">     872 </span>            :                     drm_fb_xrgb8888_to_gray8_line);</a>
+<a name="873"><span class="lineNum">     873 </span><span class="lineCov">          4 : }</span></a>
+<a name="874"><span class="lineNum">     874 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_gray8);</a>
+<a name="875"><span class="lineNum">     875 </span>            : </a>
+<a name="876"><span class="lineNum">     876 </span>            : /**</a>
+<a name="877"><span class="lineNum">     877 </span>            :  * drm_fb_blit - Copy parts of a framebuffer to display memory</a>
+<a name="878"><span class="lineNum">     878 </span>            :  * @dst:        Array of display-memory addresses to copy to</a>
+<a name="879"><span class="lineNum">     879 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="880"><span class="lineNum">     880 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="881"><span class="lineNum">     881 </span>            :  * @dst_format: FOURCC code of the display's color format</a>
+<a name="882"><span class="lineNum">     882 </span>            :  * @src:        The framebuffer memory to copy from</a>
+<a name="883"><span class="lineNum">     883 </span>            :  * @fb:         The framebuffer to copy from</a>
+<a name="884"><span class="lineNum">     884 </span>            :  * @clip:       Clip rectangle area to copy</a>
+<a name="885"><span class="lineNum">     885 </span>            :  *</a>
+<a name="886"><span class="lineNum">     886 </span>            :  * This function copies parts of a framebuffer to display memory. If the</a>
+<a name="887"><span class="lineNum">     887 </span>            :  * formats of the display and the framebuffer mismatch, the blit function</a>
+<a name="888"><span class="lineNum">     888 </span>            :  * will attempt to convert between them during the process. The parameters @dst,</a>
+<a name="889"><span class="lineNum">     889 </span>            :  * @dst_pitch and @src refer to arrays. Each array must have at least as many</a>
+<a name="890"><span class="lineNum">     890 </span>            :  * entries as there are planes in @dst_format's format. Each entry stores the</a>
+<a name="891"><span class="lineNum">     891 </span>            :  * value for the format's respective color plane at the same index.</a>
+<a name="892"><span class="lineNum">     892 </span>            :  *</a>
+<a name="893"><span class="lineNum">     893 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="894"><span class="lineNum">     894 </span>            :  * top-left corner).</a>
+<a name="895"><span class="lineNum">     895 </span>            :  *</a>
+<a name="896"><span class="lineNum">     896 </span>            :  * Returns:</a>
+<a name="897"><span class="lineNum">     897 </span>            :  * 0 on success, or</a>
+<a name="898"><span class="lineNum">     898 </span>            :  * -EINVAL if the color-format conversion failed, or</a>
+<a name="899"><span class="lineNum">     899 </span>            :  * a negative error code otherwise.</a>
+<a name="900"><span class="lineNum">     900 </span>            :  */</a>
+<a name="901"><span class="lineNum">     901 </span><span class="lineNoCov">          0 : int drm_fb_blit(struct iosys_map *dst, const unsigned int *dst_pitch, uint32_t dst_format,</span></a>
+<a name="902"><span class="lineNum">     902 </span>            :                 const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="903"><span class="lineNum">     903 </span>            :                 const struct drm_rect *clip)</a>
+<a name="904"><span class="lineNum">     904 </span>            : {</a>
+<a name="905"><span class="lineNum">     905 </span><span class="lineNoCov">          0 :         uint32_t fb_format = fb-&gt;format-&gt;format;</span></a>
+<a name="906"><span class="lineNum">     906 </span>            : </a>
+<a name="907"><span class="lineNum">     907 </span><span class="lineNoCov">          0 :         if (fb_format == dst_format) {</span></a>
+<a name="908"><span class="lineNum">     908 </span><span class="lineNoCov">          0 :                 drm_fb_memcpy(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="909"><span class="lineNum">     909 </span><span class="lineNoCov">          0 :                 return 0;</span></a>
+<a name="910"><span class="lineNum">     910 </span><span class="lineNoCov">          0 :         } else if (fb_format == (dst_format | DRM_FORMAT_BIG_ENDIAN)) {</span></a>
+<a name="911"><span class="lineNum">     911 </span><span class="lineNoCov">          0 :                 drm_fb_swab(dst, dst_pitch, src, fb, clip, false);</span></a>
+<a name="912"><span class="lineNum">     912 </span><span class="lineNoCov">          0 :                 return 0;</span></a>
+<a name="913"><span class="lineNum">     913 </span><span class="lineNoCov">          0 :         } else if (fb_format == (dst_format &amp; ~DRM_FORMAT_BIG_ENDIAN)) {</span></a>
+<a name="914"><span class="lineNum">     914 </span><span class="lineNoCov">          0 :                 drm_fb_swab(dst, dst_pitch, src, fb, clip, false);</span></a>
+<a name="915"><span class="lineNum">     915 </span><span class="lineNoCov">          0 :                 return 0;</span></a>
+<a name="916"><span class="lineNum">     916 </span><span class="lineNoCov">          0 :         } else if (fb_format == DRM_FORMAT_XRGB8888) {</span></a>
+<a name="917"><span class="lineNum">     917 </span><span class="lineNoCov">          0 :                 if (dst_format == DRM_FORMAT_RGB565) {</span></a>
+<a name="918"><span class="lineNum">     918 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_rgb565(dst, dst_pitch, src, fb, clip, false);</span></a>
+<a name="919"><span class="lineNum">     919 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="920"><span class="lineNum">     920 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_XRGB1555) {</span></a>
+<a name="921"><span class="lineNum">     921 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_xrgb1555(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="922"><span class="lineNum">     922 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="923"><span class="lineNum">     923 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_ARGB1555) {</span></a>
+<a name="924"><span class="lineNum">     924 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_argb1555(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="925"><span class="lineNum">     925 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="926"><span class="lineNum">     926 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_RGBA5551) {</span></a>
+<a name="927"><span class="lineNum">     927 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_rgba5551(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="928"><span class="lineNum">     928 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="929"><span class="lineNum">     929 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_RGB888) {</span></a>
+<a name="930"><span class="lineNum">     930 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_rgb888(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="931"><span class="lineNum">     931 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="932"><span class="lineNum">     932 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_ARGB8888) {</span></a>
+<a name="933"><span class="lineNum">     933 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_argb8888(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="934"><span class="lineNum">     934 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="935"><span class="lineNum">     935 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_XBGR8888) {</span></a>
+<a name="936"><span class="lineNum">     936 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_xbgr8888(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="937"><span class="lineNum">     937 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="938"><span class="lineNum">     938 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_ABGR8888) {</span></a>
+<a name="939"><span class="lineNum">     939 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_abgr8888(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="940"><span class="lineNum">     940 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="941"><span class="lineNum">     941 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_XRGB2101010) {</span></a>
+<a name="942"><span class="lineNum">     942 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_xrgb2101010(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="943"><span class="lineNum">     943 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="944"><span class="lineNum">     944 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_ARGB2101010) {</span></a>
+<a name="945"><span class="lineNum">     945 </span><span class="lineNoCov">          0 :                         drm_fb_xrgb8888_to_argb2101010(dst, dst_pitch, src, fb, clip);</span></a>
+<a name="946"><span class="lineNum">     946 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="947"><span class="lineNum">     947 </span><span class="lineNoCov">          0 :                 } else if (dst_format == DRM_FORMAT_BGRX8888) {</span></a>
+<a name="948"><span class="lineNum">     948 </span><span class="lineNoCov">          0 :                         drm_fb_swab(dst, dst_pitch, src, fb, clip, false);</span></a>
+<a name="949"><span class="lineNum">     949 </span><span class="lineNoCov">          0 :                         return 0;</span></a>
+<a name="950"><span class="lineNum">     950 </span>            :                 }</a>
+<a name="951"><span class="lineNum">     951 </span>            :         }</a>
+<a name="952"><span class="lineNum">     952 </span>            : </a>
+<a name="953"><span class="lineNum">     953 </span><span class="lineNoCov">          0 :         drm_warn_once(fb-&gt;dev, &quot;No conversion helper from %p4cc to %p4cc found.\n&quot;,</span></a>
+<a name="954"><span class="lineNum">     954 </span>            :                       &amp;fb_format, &amp;dst_format);</a>
+<a name="955"><span class="lineNum">     955 </span>            : </a>
+<a name="956"><span class="lineNum">     956 </span>            :         return -EINVAL;</a>
+<a name="957"><span class="lineNum">     957 </span>            : }</a>
+<a name="958"><span class="lineNum">     958 </span>            : EXPORT_SYMBOL(drm_fb_blit);</a>
+<a name="959"><span class="lineNum">     959 </span>            : </a>
+<a name="960"><span class="lineNum">     960 </span>            : static void drm_fb_gray8_to_mono_line(void *dbuf, const void *sbuf, unsigned int pixels)</a>
+<a name="961"><span class="lineNum">     961 </span>            : {</a>
+<a name="962"><span class="lineNum">     962 </span>            :         u8 *dbuf8 = dbuf;</a>
+<a name="963"><span class="lineNum">     963 </span>            :         const u8 *sbuf8 = sbuf;</a>
+<a name="964"><span class="lineNum">     964 </span>            : </a>
+<a name="965"><span class="lineNum">     965 </span><span class="lineCov">         18 :         while (pixels) {</span></a>
+<a name="966"><span class="lineNum">     966 </span><span class="lineCov">          9 :                 unsigned int i, bits = min(pixels, 8U);</span></a>
+<a name="967"><span class="lineNum">     967 </span><span class="lineCov">          9 :                 u8 byte = 0;</span></a>
+<a name="968"><span class="lineNum">     968 </span>            : </a>
+<a name="969"><span class="lineNum">     969 </span><span class="lineCov">         28 :                 for (i = 0; i &lt; bits; i++, pixels--) {</span></a>
+<a name="970"><span class="lineNum">     970 </span><span class="lineCov">         19 :                         if (*sbuf8++ &gt;= 128)</span></a>
+<a name="971"><span class="lineNum">     971 </span><span class="lineCov">          7 :                                 byte |= BIT(i);</span></a>
+<a name="972"><span class="lineNum">     972 </span>            :                 }</a>
+<a name="973"><span class="lineNum">     973 </span><span class="lineCov">          9 :                 *dbuf8++ = byte;</span></a>
+<a name="974"><span class="lineNum">     974 </span>            :         }</a>
+<a name="975"><span class="lineNum">     975 </span>            : }</a>
+<a name="976"><span class="lineNum">     976 </span>            : </a>
+<a name="977"><span class="lineNum">     977 </span>            : /**</a>
+<a name="978"><span class="lineNum">     978 </span>            :  * drm_fb_xrgb8888_to_mono - Convert XRGB8888 to monochrome</a>
+<a name="979"><span class="lineNum">     979 </span>            :  * @dst: Array of monochrome destination buffers (0=black, 1=white)</a>
+<a name="980"><span class="lineNum">     980 </span>            :  * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines</a>
+<a name="981"><span class="lineNum">     981 </span>            :  *             within @dst; can be NULL if scanlines are stored next to each other.</a>
+<a name="982"><span class="lineNum">     982 </span>            :  * @src: Array of XRGB8888 source buffers</a>
+<a name="983"><span class="lineNum">     983 </span>            :  * @fb: DRM framebuffer</a>
+<a name="984"><span class="lineNum">     984 </span>            :  * @clip: Clip rectangle area to copy</a>
+<a name="985"><span class="lineNum">     985 </span>            :  *</a>
+<a name="986"><span class="lineNum">     986 </span>            :  * This function copies parts of a framebuffer to display memory and converts the</a>
+<a name="987"><span class="lineNum">     987 </span>            :  * color format during the process. Destination and framebuffer formats must match. The</a>
+<a name="988"><span class="lineNum">     988 </span>            :  * parameters @dst, @dst_pitch and @src refer to arrays. Each array must have at</a>
+<a name="989"><span class="lineNum">     989 </span>            :  * least as many entries as there are planes in @fb's format. Each entry stores the</a>
+<a name="990"><span class="lineNum">     990 </span>            :  * value for the format's respective color plane at the same index.</a>
+<a name="991"><span class="lineNum">     991 </span>            :  *</a>
+<a name="992"><span class="lineNum">     992 </span>            :  * This function does not apply clipping on @dst (i.e. the destination is at the</a>
+<a name="993"><span class="lineNum">     993 </span>            :  * top-left corner). The first pixel (upper left corner of the clip rectangle) will</a>
+<a name="994"><span class="lineNum">     994 </span>            :  * be converted and copied to the first bit (LSB) in the first byte of the monochrome</a>
+<a name="995"><span class="lineNum">     995 </span>            :  * destination buffer. If the caller requires that the first pixel in a byte must</a>
+<a name="996"><span class="lineNum">     996 </span>            :  * be located at an x-coordinate that is a multiple of 8, then the caller must take</a>
+<a name="997"><span class="lineNum">     997 </span>            :  * care itself of supplying a suitable clip rectangle.</a>
+<a name="998"><span class="lineNum">     998 </span>            :  *</a>
+<a name="999"><span class="lineNum">     999 </span>            :  * DRM doesn't have native monochrome support. Drivers can use this function for</a>
+<a name="1000"><span class="lineNum">    1000 </span>            :  * monochrome devices that don't support XRGB8888 natively. Such drivers can</a>
+<a name="1001"><span class="lineNum">    1001 </span>            :  * announce the commonly supported XR24 format to userspace and use this function</a>
+<a name="1002"><span class="lineNum">    1002 </span>            :  * to convert to the native format.</a>
+<a name="1003"><span class="lineNum">    1003 </span>            :  *</a>
+<a name="1004"><span class="lineNum">    1004 </span>            :  * This function uses drm_fb_xrgb8888_to_gray8() to convert to grayscale and</a>
+<a name="1005"><span class="lineNum">    1005 </span>            :  * then the result is converted from grayscale to monochrome.</a>
+<a name="1006"><span class="lineNum">    1006 </span>            :  */</a>
+<a name="1007"><span class="lineNum">    1007 </span><span class="lineCov">          4 : void drm_fb_xrgb8888_to_mono(struct iosys_map *dst, const unsigned int *dst_pitch,</span></a>
+<a name="1008"><span class="lineNum">    1008 </span>            :                              const struct iosys_map *src, const struct drm_framebuffer *fb,</a>
+<a name="1009"><span class="lineNum">    1009 </span>            :                              const struct drm_rect *clip)</a>
+<a name="1010"><span class="lineNum">    1010 </span>            : {</a>
+<a name="1011"><span class="lineNum">    1011 </span>            :         static const unsigned int default_dst_pitch[DRM_FORMAT_MAX_PLANES] = {</a>
+<a name="1012"><span class="lineNum">    1012 </span>            :                 0, 0, 0, 0</a>
+<a name="1013"><span class="lineNum">    1013 </span>            :         };</a>
+<a name="1014"><span class="lineNum">    1014 </span><span class="lineCov">          8 :         unsigned int linepixels = drm_rect_width(clip);</span></a>
+<a name="1015"><span class="lineNum">    1015 </span><span class="lineCov">          8 :         unsigned int lines = drm_rect_height(clip);</span></a>
+<a name="1016"><span class="lineNum">    1016 </span><span class="lineCov">          4 :         unsigned int cpp = fb-&gt;format-&gt;cpp[0];</span></a>
+<a name="1017"><span class="lineNum">    1017 </span><span class="lineCov">          4 :         unsigned int len_src32 = linepixels * cpp;</span></a>
+<a name="1018"><span class="lineNum">    1018 </span><span class="lineCov">          4 :         struct drm_device *dev = fb-&gt;dev;</span></a>
+<a name="1019"><span class="lineNum">    1019 </span><span class="lineCov">          4 :         void *vaddr = src[0].vaddr;</span></a>
+<a name="1020"><span class="lineNum">    1020 </span>            :         unsigned int dst_pitch_0;</a>
+<a name="1021"><span class="lineNum">    1021 </span>            :         unsigned int y;</a>
+<a name="1022"><span class="lineNum">    1022 </span><span class="lineCov">          4 :         u8 *mono = dst[0].vaddr, *gray8;</span></a>
+<a name="1023"><span class="lineNum">    1023 </span>            :         u32 *src32;</a>
+<a name="1024"><span class="lineNum">    1024 </span>            : </a>
+<a name="1025"><span class="lineNum">    1025 </span><span class="lineCov">          4 :         if (drm_WARN_ON(dev, fb-&gt;format-&gt;format != DRM_FORMAT_XRGB8888))</span></a>
+<a name="1026"><span class="lineNum">    1026 </span>            :                 return;</a>
+<a name="1027"><span class="lineNum">    1027 </span>            : </a>
+<a name="1028"><span class="lineNum">    1028 </span><span class="lineCov">          4 :         if (!dst_pitch)</span></a>
+<a name="1029"><span class="lineNum">    1029 </span><span class="lineCov">          3 :                 dst_pitch = default_dst_pitch;</span></a>
+<a name="1030"><span class="lineNum">    1030 </span><span class="lineCov">          4 :         dst_pitch_0 = dst_pitch[0];</span></a>
+<a name="1031"><span class="lineNum">    1031 </span>            : </a>
+<a name="1032"><span class="lineNum">    1032 </span>            :         /*</a>
+<a name="1033"><span class="lineNum">    1033 </span>            :          * The mono destination buffer contains 1 bit per pixel</a>
+<a name="1034"><span class="lineNum">    1034 </span>            :          */</a>
+<a name="1035"><span class="lineNum">    1035 </span><span class="lineCov">          4 :         if (!dst_pitch_0)</span></a>
+<a name="1036"><span class="lineNum">    1036 </span><span class="lineCov">          3 :                 dst_pitch_0 = DIV_ROUND_UP(linepixels, 8);</span></a>
+<a name="1037"><span class="lineNum">    1037 </span>            : </a>
+<a name="1038"><span class="lineNum">    1038 </span>            :         /*</a>
+<a name="1039"><span class="lineNum">    1039 </span>            :          * The dma memory is write-combined so reads are uncached.</a>
+<a name="1040"><span class="lineNum">    1040 </span>            :          * Speed up by fetching one line at a time.</a>
+<a name="1041"><span class="lineNum">    1041 </span>            :          *</a>
+<a name="1042"><span class="lineNum">    1042 </span>            :          * Also, format conversion from XR24 to monochrome are done</a>
+<a name="1043"><span class="lineNum">    1043 </span>            :          * line-by-line but are converted to 8-bit grayscale as an</a>
+<a name="1044"><span class="lineNum">    1044 </span>            :          * intermediate step.</a>
+<a name="1045"><span class="lineNum">    1045 </span>            :          *</a>
+<a name="1046"><span class="lineNum">    1046 </span>            :          * Allocate a buffer to be used for both copying from the cma</a>
+<a name="1047"><span class="lineNum">    1047 </span>            :          * memory and to store the intermediate grayscale line pixels.</a>
+<a name="1048"><span class="lineNum">    1048 </span>            :          */</a>
+<a name="1049"><span class="lineNum">    1049 </span><span class="lineCov">          8 :         src32 = kmalloc(len_src32 + linepixels, GFP_KERNEL);</span></a>
+<a name="1050"><span class="lineNum">    1050 </span><span class="lineCov">          4 :         if (!src32)</span></a>
+<a name="1051"><span class="lineNum">    1051 </span>            :                 return;</a>
+<a name="1052"><span class="lineNum">    1052 </span>            : </a>
+<a name="1053"><span class="lineNum">    1053 </span><span class="lineCov">          4 :         gray8 = (u8 *)src32 + len_src32;</span></a>
+<a name="1054"><span class="lineNum">    1054 </span>            : </a>
+<a name="1055"><span class="lineNum">    1055 </span><span class="lineCov">          8 :         vaddr += clip_offset(clip, fb-&gt;pitches[0], cpp);</span></a>
+<a name="1056"><span class="lineNum">    1056 </span><span class="lineCov">         13 :         for (y = 0; y &lt; lines; y++) {</span></a>
+<a name="1057"><span class="lineNum">    1057 </span><span class="lineCov">          9 :                 src32 = memcpy(src32, vaddr, len_src32);</span></a>
+<a name="1058"><span class="lineNum">    1058 </span>            :                 drm_fb_xrgb8888_to_gray8_line(gray8, src32, linepixels);</a>
+<a name="1059"><span class="lineNum">    1059 </span><span class="lineCov">          9 :                 drm_fb_gray8_to_mono_line(mono, gray8, linepixels);</span></a>
+<a name="1060"><span class="lineNum">    1060 </span><span class="lineCov">          9 :                 vaddr += fb-&gt;pitches[0];</span></a>
+<a name="1061"><span class="lineNum">    1061 </span><span class="lineCov">          9 :                 mono += dst_pitch_0;</span></a>
+<a name="1062"><span class="lineNum">    1062 </span>            :         }</a>
+<a name="1063"><span class="lineNum">    1063 </span>            : </a>
+<a name="1064"><span class="lineNum">    1064 </span><span class="lineCov">          4 :         kfree(src32);</span></a>
+<a name="1065"><span class="lineNum">    1065 </span>            : }</a>
+<a name="1066"><span class="lineNum">    1066 </span>            : EXPORT_SYMBOL(drm_fb_xrgb8888_to_mono);</a>
+<a name="1067"><span class="lineNum">    1067 </span>            : </a>
+<a name="1068"><span class="lineNum">    1068 </span><span class="lineCov">         36 : static uint32_t drm_fb_nonalpha_fourcc(uint32_t fourcc)</span></a>
+<a name="1069"><span class="lineNum">    1069 </span>            : {</a>
+<a name="1070"><span class="lineNum">    1070 </span>            :         /* only handle formats with depth != 0 and alpha channel */</a>
+<a name="1071"><span class="lineNum">    1071 </span><span class="lineCov">         36 :         switch (fourcc) {</span></a>
+<a name="1072"><span class="lineNum">    1072 </span>            :         case DRM_FORMAT_ARGB1555:</a>
+<a name="1073"><span class="lineNum">    1073 </span>            :                 return DRM_FORMAT_XRGB1555;</a>
+<a name="1074"><span class="lineNum">    1074 </span>            :         case DRM_FORMAT_ABGR1555:</a>
+<a name="1075"><span class="lineNum">    1075 </span><span class="lineCov">          1 :                 return DRM_FORMAT_XBGR1555;</span></a>
+<a name="1076"><span class="lineNum">    1076 </span>            :         case DRM_FORMAT_RGBA5551:</a>
+<a name="1077"><span class="lineNum">    1077 </span><span class="lineCov">          2 :                 return DRM_FORMAT_RGBX5551;</span></a>
+<a name="1078"><span class="lineNum">    1078 </span>            :         case DRM_FORMAT_BGRA5551:</a>
+<a name="1079"><span class="lineNum">    1079 </span><span class="lineCov">          1 :                 return DRM_FORMAT_BGRX5551;</span></a>
+<a name="1080"><span class="lineNum">    1080 </span>            :         case DRM_FORMAT_ARGB8888:</a>
+<a name="1081"><span class="lineNum">    1081 </span><span class="lineCov">          1 :                 return DRM_FORMAT_XRGB8888;</span></a>
+<a name="1082"><span class="lineNum">    1082 </span>            :         case DRM_FORMAT_ABGR8888:</a>
+<a name="1083"><span class="lineNum">    1083 </span><span class="lineCov">          1 :                 return DRM_FORMAT_XBGR8888;</span></a>
+<a name="1084"><span class="lineNum">    1084 </span>            :         case DRM_FORMAT_RGBA8888:</a>
+<a name="1085"><span class="lineNum">    1085 </span><span class="lineCov">          1 :                 return DRM_FORMAT_RGBX8888;</span></a>
+<a name="1086"><span class="lineNum">    1086 </span>            :         case DRM_FORMAT_BGRA8888:</a>
+<a name="1087"><span class="lineNum">    1087 </span><span class="lineCov">          1 :                 return DRM_FORMAT_BGRX8888;</span></a>
+<a name="1088"><span class="lineNum">    1088 </span>            :         case DRM_FORMAT_ARGB2101010:</a>
+<a name="1089"><span class="lineNum">    1089 </span><span class="lineCov">          1 :                 return DRM_FORMAT_XRGB2101010;</span></a>
+<a name="1090"><span class="lineNum">    1090 </span>            :         case DRM_FORMAT_ABGR2101010:</a>
+<a name="1091"><span class="lineNum">    1091 </span><span class="lineCov">          1 :                 return DRM_FORMAT_XBGR2101010;</span></a>
+<a name="1092"><span class="lineNum">    1092 </span>            :         case DRM_FORMAT_RGBA1010102:</a>
+<a name="1093"><span class="lineNum">    1093 </span><span class="lineCov">          1 :                 return DRM_FORMAT_RGBX1010102;</span></a>
+<a name="1094"><span class="lineNum">    1094 </span>            :         case DRM_FORMAT_BGRA1010102:</a>
+<a name="1095"><span class="lineNum">    1095 </span><span class="lineCov">          1 :                 return DRM_FORMAT_BGRX1010102;</span></a>
+<a name="1096"><span class="lineNum">    1096 </span>            :         }</a>
+<a name="1097"><span class="lineNum">    1097 </span>            : </a>
+<a name="1098"><span class="lineNum">    1098 </span><span class="lineCov">         22 :         return fourcc;</span></a>
+<a name="1099"><span class="lineNum">    1099 </span>            : }</a>
+<a name="1100"><span class="lineNum">    1100 </span>            : </a>
+<a name="1101"><span class="lineNum">    1101 </span>            : static bool is_listed_fourcc(const uint32_t *fourccs, size_t nfourccs, uint32_t fourcc)</a>
+<a name="1102"><span class="lineNum">    1102 </span>            : {</a>
+<a name="1103"><span class="lineNum">    1103 </span><span class="lineCov">         41 :         const uint32_t *fourccs_end = fourccs + nfourccs;</span></a>
+<a name="1104"><span class="lineNum">    1104 </span>            : </a>
+<a name="1105"><span class="lineNum">    1105 </span><span class="lineCov">        168 :         while (fourccs &lt; fourccs_end) {</span></a>
+<a name="1106"><span class="lineNum">    1106 </span><span class="lineCov">        141 :                 if (*fourccs == fourcc)</span></a>
+<a name="1107"><span class="lineNum">    1107 </span>            :                         return true;</a>
+<a name="1108"><span class="lineNum">    1108 </span><span class="lineCov">        127 :                 ++fourccs;</span></a>
+<a name="1109"><span class="lineNum">    1109 </span>            :         }</a>
+<a name="1110"><span class="lineNum">    1110 </span>            :         return false;</a>
+<a name="1111"><span class="lineNum">    1111 </span>            : }</a>
+<a name="1112"><span class="lineNum">    1112 </span>            : </a>
+<a name="1113"><span class="lineNum">    1113 </span>            : /**</a>
+<a name="1114"><span class="lineNum">    1114 </span>            :  * drm_fb_build_fourcc_list - Filters a list of supported color formats against</a>
+<a name="1115"><span class="lineNum">    1115 </span>            :  *                            the device's native formats</a>
+<a name="1116"><span class="lineNum">    1116 </span>            :  * @dev: DRM device</a>
+<a name="1117"><span class="lineNum">    1117 </span>            :  * @native_fourccs: 4CC codes of natively supported color formats</a>
+<a name="1118"><span class="lineNum">    1118 </span>            :  * @native_nfourccs: The number of entries in @native_fourccs</a>
+<a name="1119"><span class="lineNum">    1119 </span>            :  * @fourccs_out: Returns 4CC codes of supported color formats</a>
+<a name="1120"><span class="lineNum">    1120 </span>            :  * @nfourccs_out: The number of available entries in @fourccs_out</a>
+<a name="1121"><span class="lineNum">    1121 </span>            :  *</a>
+<a name="1122"><span class="lineNum">    1122 </span>            :  * This function create a list of supported color format from natively</a>
+<a name="1123"><span class="lineNum">    1123 </span>            :  * supported formats and additional emulated formats.</a>
+<a name="1124"><span class="lineNum">    1124 </span>            :  * At a minimum, most userspace programs expect at least support for</a>
+<a name="1125"><span class="lineNum">    1125 </span>            :  * XRGB8888 on the primary plane. Devices that have to emulate the</a>
+<a name="1126"><span class="lineNum">    1126 </span>            :  * format, and possibly others, can use drm_fb_build_fourcc_list() to</a>
+<a name="1127"><span class="lineNum">    1127 </span>            :  * create a list of supported color formats. The returned list can</a>
+<a name="1128"><span class="lineNum">    1128 </span>            :  * be handed over to drm_universal_plane_init() et al. Native formats</a>
+<a name="1129"><span class="lineNum">    1129 </span>            :  * will go before emulated formats. Native formats with alpha channel</a>
+<a name="1130"><span class="lineNum">    1130 </span>            :  * will be replaced by such without, as primary planes usually don't</a>
+<a name="1131"><span class="lineNum">    1131 </span>            :  * support alpha. Other heuristics might be applied</a>
+<a name="1132"><span class="lineNum">    1132 </span>            :  * to optimize the order. Formats near the beginning of the list are</a>
+<a name="1133"><span class="lineNum">    1133 </span>            :  * usually preferred over formats near the end of the list.</a>
+<a name="1134"><span class="lineNum">    1134 </span>            :  *</a>
+<a name="1135"><span class="lineNum">    1135 </span>            :  * Returns:</a>
+<a name="1136"><span class="lineNum">    1136 </span>            :  * The number of color-formats 4CC codes returned in @fourccs_out.</a>
+<a name="1137"><span class="lineNum">    1137 </span>            :  */</a>
+<a name="1138"><span class="lineNum">    1138 </span><span class="lineCov">          5 : size_t drm_fb_build_fourcc_list(struct drm_device *dev,</span></a>
+<a name="1139"><span class="lineNum">    1139 </span>            :                                 const u32 *native_fourccs, size_t native_nfourccs,</a>
+<a name="1140"><span class="lineNum">    1140 </span>            :                                 u32 *fourccs_out, size_t nfourccs_out)</a>
+<a name="1141"><span class="lineNum">    1141 </span>            : {</a>
+<a name="1142"><span class="lineNum">    1142 </span>            :         /*</a>
+<a name="1143"><span class="lineNum">    1143 </span>            :          * XRGB8888 is the default fallback format for most of userspace</a>
+<a name="1144"><span class="lineNum">    1144 </span>            :          * and it's currently the only format that should be emulated for</a>
+<a name="1145"><span class="lineNum">    1145 </span>            :          * the primary plane. Only if there's ever another default fallback,</a>
+<a name="1146"><span class="lineNum">    1146 </span>            :          * it should be added here.</a>
+<a name="1147"><span class="lineNum">    1147 </span>            :          */</a>
+<a name="1148"><span class="lineNum">    1148 </span>            :         static const uint32_t extra_fourccs[] = {</a>
+<a name="1149"><span class="lineNum">    1149 </span>            :                 DRM_FORMAT_XRGB8888,</a>
+<a name="1150"><span class="lineNum">    1150 </span>            :         };</a>
+<a name="1151"><span class="lineNum">    1151 </span>            :         static const size_t extra_nfourccs = ARRAY_SIZE(extra_fourccs);</a>
+<a name="1152"><span class="lineNum">    1152 </span>            : </a>
+<a name="1153"><span class="lineNum">    1153 </span><span class="lineCov">          5 :         u32 *fourccs = fourccs_out;</span></a>
+<a name="1154"><span class="lineNum">    1154 </span><span class="lineCov">          5 :         const u32 *fourccs_end = fourccs_out + nfourccs_out;</span></a>
+<a name="1155"><span class="lineNum">    1155 </span>            :         size_t i;</a>
+<a name="1156"><span class="lineNum">    1156 </span>            : </a>
+<a name="1157"><span class="lineNum">    1157 </span>            :         /*</a>
+<a name="1158"><span class="lineNum">    1158 </span>            :          * The device's native formats go first.</a>
+<a name="1159"><span class="lineNum">    1159 </span>            :          */</a>
+<a name="1160"><span class="lineNum">    1160 </span>            : </a>
+<a name="1161"><span class="lineNum">    1161 </span><span class="lineCov">         41 :         for (i = 0; i &lt; native_nfourccs; ++i) {</span></a>
+<a name="1162"><span class="lineNum">    1162 </span>            :                 /*</a>
+<a name="1163"><span class="lineNum">    1163 </span>            :                  * Several DTs, boot loaders and firmware report native</a>
+<a name="1164"><span class="lineNum">    1164 </span>            :                  * alpha formats that are non-alpha formats instead. So</a>
+<a name="1165"><span class="lineNum">    1165 </span>            :                  * replace alpha formats by non-alpha formats.</a>
+<a name="1166"><span class="lineNum">    1166 </span>            :                  */</a>
+<a name="1167"><span class="lineNum">    1167 </span><span class="lineCov">         36 :                 u32 fourcc = drm_fb_nonalpha_fourcc(native_fourccs[i]);</span></a>
+<a name="1168"><span class="lineNum">    1168 </span>            : </a>
+<a name="1169"><span class="lineNum">    1169 </span><span class="lineCov">         72 :                 if (is_listed_fourcc(fourccs_out, fourccs - fourccs_out, fourcc)) {</span></a>
+<a name="1170"><span class="lineNum">    1170 </span><span class="lineCov">         22 :                         continue; /* skip duplicate entries */</span></a>
+<a name="1171"><span class="lineNum">    1171 </span><span class="lineCov">         25 :                 } else if (fourccs == fourccs_end) {</span></a>
+<a name="1172"><span class="lineNum">    1172 </span><span class="lineNoCov">          0 :                         drm_warn(dev, &quot;Ignoring native format %p4cc\n&quot;, &amp;fourcc);</span></a>
+<a name="1173"><span class="lineNum">    1173 </span><span class="lineNoCov">          0 :                         continue; /* end of available output buffer */</span></a>
+<a name="1174"><span class="lineNum">    1174 </span>            :                 }</a>
+<a name="1175"><span class="lineNum">    1175 </span>            : </a>
+<a name="1176"><span class="lineNum">    1176 </span><span class="lineCov">         25 :                 drm_dbg_kms(dev, &quot;adding native format %p4cc\n&quot;, &amp;fourcc);</span></a>
+<a name="1177"><span class="lineNum">    1177 </span>            : </a>
+<a name="1178"><span class="lineNum">    1178 </span><span class="lineCov">         25 :                 *fourccs = fourcc;</span></a>
+<a name="1179"><span class="lineNum">    1179 </span><span class="lineCov">         25 :                 ++fourccs;</span></a>
+<a name="1180"><span class="lineNum">    1180 </span>            :         }</a>
+<a name="1181"><span class="lineNum">    1181 </span>            : </a>
+<a name="1182"><span class="lineNum">    1182 </span>            :         /*</a>
+<a name="1183"><span class="lineNum">    1183 </span>            :          * The extra formats, emulated by the driver, go second.</a>
+<a name="1184"><span class="lineNum">    1184 </span>            :          */</a>
+<a name="1185"><span class="lineNum">    1185 </span>            : </a>
+<a name="1186"><span class="lineNum">    1186 </span><span class="lineCov">          5 :         for (i = 0; (i &lt; extra_nfourccs) &amp;&amp; (fourccs &lt; fourccs_end); ++i) {</span></a>
+<a name="1187"><span class="lineNum">    1187 </span><span class="lineCov">          5 :                 u32 fourcc = extra_fourccs[i];</span></a>
+<a name="1188"><span class="lineNum">    1188 </span>            : </a>
+<a name="1189"><span class="lineNum">    1189 </span><span class="lineCov">         10 :                 if (is_listed_fourcc(fourccs_out, fourccs - fourccs_out, fourcc)) {</span></a>
+<a name="1190"><span class="lineNum">    1190 </span><span class="lineCov">          6 :                         continue; /* skip duplicate and native entries */</span></a>
+<a name="1191"><span class="lineNum">    1191 </span><span class="lineCov">          2 :                 } else if (fourccs == fourccs_end) {</span></a>
+<a name="1192"><span class="lineNum">    1192 </span><span class="lineNoCov">          0 :                         drm_warn(dev, &quot;Ignoring emulated format %p4cc\n&quot;, &amp;fourcc);</span></a>
+<a name="1193"><span class="lineNum">    1193 </span><span class="lineNoCov">          0 :                         continue; /* end of available output buffer */</span></a>
+<a name="1194"><span class="lineNum">    1194 </span>            :                 }</a>
+<a name="1195"><span class="lineNum">    1195 </span>            : </a>
+<a name="1196"><span class="lineNum">    1196 </span><span class="lineCov">          2 :                 drm_dbg_kms(dev, &quot;adding emulated format %p4cc\n&quot;, &amp;fourcc);</span></a>
+<a name="1197"><span class="lineNum">    1197 </span>            : </a>
+<a name="1198"><span class="lineNum">    1198 </span><span class="lineCov">          2 :                 *fourccs = fourcc;</span></a>
+<a name="1199"><span class="lineNum">    1199 </span><span class="lineCov">          2 :                 ++fourccs;</span></a>
+<a name="1200"><span class="lineNum">    1200 </span>            :         }</a>
+<a name="1201"><span class="lineNum">    1201 </span>            : </a>
+<a name="1202"><span class="lineNum">    1202 </span><span class="lineCov">          5 :         return fourccs - fourccs_out;</span></a>
+<a name="1203"><span class="lineNum">    1203 </span>            : }</a>
+<a name="1204"><span class="lineNum">    1204 </span>            : EXPORT_SYMBOL(drm_fb_build_fourcc_list);</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

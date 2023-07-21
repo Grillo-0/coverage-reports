@@ -1,0 +1,592 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - mm/page_alloc.c - functions</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mm</a> - page_alloc.c<span style="font-size: 80%;"> (<a href="page_alloc.c.gcov.html">source</a> / functions)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">659</td>
+            <td class="headerCovTableEntry">1571</td>
+            <td class="headerCovTableEntryLo">41.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-07-19 18:55:55</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">59</td>
+            <td class="headerCovTableEntry">130</td>
+            <td class="headerCovTableEntryLo">45.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <center>
+  <table width="60%" cellpadding=1 cellspacing=1 border=0>
+    <tr><td><br></td></tr>
+    <tr>
+      <td width="80%" class="tableHead">Function Name <span class="tableHeadSort"><img src="../glass.png" width=10 height=14 alt="Sort by function name" title="Sort by function name" border=0></span></td>
+      <td width="20%" class="tableHead">Hit count <span class="tableHeadSort"><a href="page_alloc.c.func-sort-c.html"><img src="../updown.png" width=10 height=14 alt="Sort by hit count" title="Sort by hit count" border=0></a></span></td>
+    </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4730">__alloc_pages</a></td>
+              <td class="coverFnHi">2222</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4578">__alloc_pages_bulk</a></td>
+              <td class="coverFnHi">596</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3578">__alloc_pages_cpuset_fallback</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3693">__alloc_pages_direct_compact</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3980">__alloc_pages_direct_reclaim</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3598">__alloc_pages_may_oom</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4239">__alloc_pages_slowpath</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5801">__build_all_zonelists</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2424">__drain_all_pages</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4795">__folio_alloc</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#932">__free_one_page</a></td>
+              <td class="coverFnHi">1205</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4849">__free_pages</a></td>
+              <td class="coverFnHi">44236</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1460">__free_pages_core</a></td>
+              <td class="coverFnHi">260</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1431">__free_pages_ok</a></td>
+              <td class="coverFnHi">260</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4812">__get_free_pages</a></td>
+              <td class="coverFnHi">20</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4100">__gfp_pfmemalloc_flags</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2795">__isolate_free_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4904">__page_frag_cache_drain</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4883">__page_frag_cache_refill.isra.110</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1513">__pageblock_pfn_to_page</a></td>
+              <td class="coverFnHi">260</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3954">__perform_reclaim.isra.104</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2847">__putback_isolated_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2934">__rmqueue_pcplist</a></td>
+              <td class="coverFnHi">44763</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6356">__setup_per_zone_wmarks</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5301">__show_free_areas</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3170">__zone_watermark_ok</a></td>
+              <td class="coverFnHi">107</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6184">adjust_managed_page_count</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5033">alloc_pages_exact</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5058">alloc_pages_exact_nid</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#577">bad_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1915">boost_watermark</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#892">buddy_merge_likely</a></td>
+              <td class="coverFnHi">945</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5896">build_all_zonelists</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5864">build_all_zonelists_init</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5740">build_zonelists</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6467">calculate_min_free_kbytes</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6286">calculate_totalreserve_pages</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1621">check_new_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1606">check_new_page_bad</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1631">check_new_pages</a></td>
+              <td class="coverFnHi">44763</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1563">clear_zone_contiguous</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#697">destroy_large_folio</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2497">drain_all_pages</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2404">drain_local_pages</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2392">drain_pages.isra.106</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2377">drain_pages_zone.isra.105</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2042">find_suitable_fallback</a></td>
+              <td class="coverFnHi">4</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#679">free_compound_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6984">free_contig_range</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1415">free_one_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1122">free_page_is_bad</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1116">free_page_is_bad_report</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4862">free_pages</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5079">free_pages_exact</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1347">free_pcppages_bulk</a></td>
+              <td class="coverFnHi">4</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6195">free_reserved_area</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1132">free_tail_page_prepare</a></td>
+              <td class="coverFnHi">42</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#656">free_the_page</a></td>
+              <td class="coverFnHi">44236</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2649">free_unref_page</a></td>
+              <td class="coverFnHi">44236</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2617">free_unref_page_commit</a></td>
+              <td class="coverFnHi">44236</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2691">free_unref_page_list</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2557">free_unref_page_prepare</a></td>
+              <td class="coverFnHi">44236</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3383">get_page_from_freelist</a></td>
+              <td class="coverFnHi">2222</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#472">get_pfnblock_flags_mask</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4823">get_zeroed_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4118">gfp_pfmemalloc_allowed</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4033">gfp_to_alloc_flags</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6483">init_per_zone_wmark_min</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#7088">is_free_buddy_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1228">kernel_init_pages</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6603">lowmem_reserve_ratio_sysctl_handler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4998">make_alloc_exact</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6506">min_free_kbytes_sysctl_handler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1812">move_freepages</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1849">move_freepages_block</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5132">nr_free_buffer_pages</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5103">nr_free_zone_pages</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2599">nr_pcp_high</a></td>
+              <td class="coverFnHi">44236</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6231">page_alloc_cpu_dead</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6262">page_alloc_cpu_online</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6271">page_alloc_init_cpuhp</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4913">page_frag_alloc_align</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4989">page_frag_free</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6048">per_cpu_pages_init</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6624">percpu_pagelist_high_fraction_sysctl_handler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#272">pm_restore_gfp_mask</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#281">pm_restrict_gfp_mask</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#289">pm_suspended_storage</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1673">post_alloc_hook</a></td>
+              <td class="coverFnHi">44763</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#685">prep_compound_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1733">prep_new_page</a></td>
+              <td class="coverFnHi">2222</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4515">prepare_alloc_pages.isra.108</a></td>
+              <td class="coverFnHi">2818</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2074">reserve_highatomic_pageblock.isra.107</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3021">rmqueue.isra.103</a></td>
+              <td class="coverFnHi">2222</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2318">rmqueue_bulk</a></td>
+              <td class="coverFnHi">53</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2974">rmqueue_pcplist.isra.102</a></td>
+              <td class="coverFnHi">2222</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#517">set_pageblock_migratetype</a></td>
+              <td class="coverFnHi">264</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#491">set_pfnblock_flags_mask</a></td>
+              <td class="coverFnHi">264</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1541">set_zone_contiguous</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6139">setup_per_cpu_pageset</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6327">setup_per_zone_lowmem_reserve</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6426">setup_per_zone_wmarks</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6103">setup_zone_pageset</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3752">should_compact_retry</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3136">should_fail_alloc_page</a></td>
+              <td class="coverFnHi">2818</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4134">should_reclaim_retry</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5240">show_mem_node_skip</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5256">show_migration_types</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5144">si_mem_available</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5190">si_meminfo</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1026">split_free_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2781">split_page</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#1960">steal_suitable_fallback</a></td>
+              <td class="coverFnHi">4</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#781">task_capc</a></td>
+              <td class="coverFnHi">1205</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#2116">unreserve_highatomic_pageblock</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#4013">wake_all_kswapds</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3552">warn_alloc</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3533">warn_alloc_show_mem</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6522">watermark_scale_factor_sysctl_handler</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5929">zone_batchsize</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#5977">zone_highsize</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#7006">zone_pcp_disable</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#7013">zone_pcp_enable</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6167">zone_pcp_init</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#7019">zone_pcp_reset</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6128">zone_pcp_update</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#6086">zone_set_pageset_high_and_batch</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3255">zone_watermark_fast.isra.109</a></td>
+              <td class="coverFnHi">2818</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3248">zone_watermark_ok</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="page_alloc.c.gcov.html#3300">zone_watermark_ok_safe</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+  </table>
+  <br>
+  </center>
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
