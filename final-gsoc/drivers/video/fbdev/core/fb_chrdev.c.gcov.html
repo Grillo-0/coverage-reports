@@ -1,0 +1,561 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - drivers/video/fbdev/core/fb_chrdev.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">drivers/video/fbdev/core</a> - fb_chrdev.c<span style="font-size: 80%;"> (source / <a href="fb_chrdev.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">144</td>
+            <td class="headerCovTableEntryLo">2.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-08-24 13:40:31</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">11.1 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // SPDX-License-Identifier: GPL-2.0</a>
+<a name="2"><span class="lineNum">       2 </span>            : </a>
+<a name="3"><span class="lineNum">       3 </span>            : #include &lt;linux/compat.h&gt;</a>
+<a name="4"><span class="lineNum">       4 </span>            : #include &lt;linux/console.h&gt;</a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &lt;linux/fb.h&gt;</a>
+<a name="6"><span class="lineNum">       6 </span>            : #include &lt;linux/fbcon.h&gt;</a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &lt;linux/major.h&gt;</a>
+<a name="8"><span class="lineNum">       8 </span>            : </a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &quot;fb_internal.h&quot;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : /*</a>
+<a name="12"><span class="lineNum">      12 </span>            :  * We hold a reference to the fb_info in file-&gt;private_data,</a>
+<a name="13"><span class="lineNum">      13 </span>            :  * but if the current registered fb has changed, we don't</a>
+<a name="14"><span class="lineNum">      14 </span>            :  * actually want to use it.</a>
+<a name="15"><span class="lineNum">      15 </span>            :  *</a>
+<a name="16"><span class="lineNum">      16 </span>            :  * So look up the fb_info using the inode minor number,</a>
+<a name="17"><span class="lineNum">      17 </span>            :  * and just verify it against the reference we have.</a>
+<a name="18"><span class="lineNum">      18 </span>            :  */</a>
+<a name="19"><span class="lineNum">      19 </span>            : static struct fb_info *file_fb_info(struct file *file)</a>
+<a name="20"><span class="lineNum">      20 </span>            : {</a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineNoCov">          0 :         struct inode *inode = file_inode(file);</span></a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineNoCov">          0 :         int fbidx = iminor(inode);</span></a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 :         struct fb_info *info = registered_fb[fbidx];</span></a>
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineNoCov">          0 :         if (info != file-&gt;private_data)</span></a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineNoCov">          0 :                 info = NULL;</span></a>
+<a name="27"><span class="lineNum">      27 </span>            :         return info;</a>
+<a name="28"><span class="lineNum">      28 </span>            : }</a>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<a name="30"><span class="lineNum">      30 </span><span class="lineNoCov">          0 : static ssize_t fb_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)</span></a>
+<a name="31"><span class="lineNum">      31 </span>            : {</a>
+<a name="32"><span class="lineNum">      32 </span><span class="lineNoCov">          0 :         struct fb_info *info = file_fb_info(file);</span></a>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<a name="34"><span class="lineNum">      34 </span><span class="lineNoCov">          0 :         if (!info)</span></a>
+<a name="35"><span class="lineNum">      35 </span>            :                 return -ENODEV;</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span><span class="lineNoCov">          0 :         if (info-&gt;state != FBINFO_STATE_RUNNING)</span></a>
+<a name="38"><span class="lineNum">      38 </span>            :                 return -EPERM;</a>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 :         if (info-&gt;fbops-&gt;fb_read)</span></a>
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :                 return info-&gt;fbops-&gt;fb_read(info, buf, count, ppos);</span></a>
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<a name="43"><span class="lineNum">      43 </span><span class="lineNoCov">          0 :         return fb_io_read(info, buf, count, ppos);</span></a>
+<a name="44"><span class="lineNum">      44 </span>            : }</a>
+<a name="45"><span class="lineNum">      45 </span>            : </a>
+<a name="46"><span class="lineNum">      46 </span><span class="lineNoCov">          0 : static ssize_t fb_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)</span></a>
+<a name="47"><span class="lineNum">      47 </span>            : {</a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineNoCov">          0 :         struct fb_info *info = file_fb_info(file);</span></a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineNoCov">          0 :         if (!info)</span></a>
+<a name="51"><span class="lineNum">      51 </span>            :                 return -ENODEV;</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :         if (info-&gt;state != FBINFO_STATE_RUNNING)</span></a>
+<a name="54"><span class="lineNum">      54 </span>            :                 return -EPERM;</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span><span class="lineNoCov">          0 :         if (info-&gt;fbops-&gt;fb_write)</span></a>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :                 return info-&gt;fbops-&gt;fb_write(info, buf, count, ppos);</span></a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 :         return fb_io_write(info, buf, count, ppos);</span></a>
+<a name="60"><span class="lineNum">      60 </span>            : }</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 : static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,</span></a>
+<a name="63"><span class="lineNum">      63 </span>            :                         unsigned long arg)</a>
+<a name="64"><span class="lineNum">      64 </span>            : {</a>
+<a name="65"><span class="lineNum">      65 </span>            :         const struct fb_ops *fb;</a>
+<a name="66"><span class="lineNum">      66 </span>            :         struct fb_var_screeninfo var;</a>
+<a name="67"><span class="lineNum">      67 </span>            :         struct fb_fix_screeninfo fix;</a>
+<a name="68"><span class="lineNum">      68 </span>            :         struct fb_cmap cmap_from;</a>
+<a name="69"><span class="lineNum">      69 </span>            :         struct fb_cmap_user cmap;</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 :         void __user *argp = (void __user *)arg;</span></a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 :         long ret = 0;</span></a>
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :         switch (cmd) {</span></a>
+<a name="74"><span class="lineNum">      74 </span>            :         case FBIOGET_VSCREENINFO:</a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 lock_fb_info(info);</span></a>
+<a name="76"><span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 var = info-&gt;var;</span></a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 unlock_fb_info(info);</span></a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 :                 ret = copy_to_user(argp, &amp;var, sizeof(var)) ? -EFAULT : 0;</span></a>
+<a name="80"><span class="lineNum">      80 </span>            :                 break;</a>
+<a name="81"><span class="lineNum">      81 </span>            :         case FBIOPUT_VSCREENINFO:</a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 if (copy_from_user(&amp;var, argp, sizeof(var)))</span></a>
+<a name="83"><span class="lineNum">      83 </span>            :                         return -EFAULT;</a>
+<a name="84"><span class="lineNum">      84 </span>            :                 /* only for kernel-internal use */</a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 :                 var.activate &amp;= ~FB_ACTIVATE_KD_TEXT;</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineNoCov">          0 :                 console_lock();</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineNoCov">          0 :                 lock_fb_info(info);</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineNoCov">          0 :                 ret = fbcon_modechange_possible(info, &amp;var);</span></a>
+<a name="89"><span class="lineNum">      89 </span>            :                 if (!ret)</a>
+<a name="90"><span class="lineNum">      90 </span><span class="lineNoCov">          0 :                         ret = fb_set_var(info, &amp;var);</span></a>
+<a name="91"><span class="lineNum">      91 </span>            :                 if (!ret)</a>
+<a name="92"><span class="lineNum">      92 </span>            :                         fbcon_update_vcs(info, var.activate &amp; FB_ACTIVATE_ALL);</a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :                 unlock_fb_info(info);</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 console_unlock();</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 if (!ret &amp;&amp; copy_to_user(argp, &amp;var, sizeof(var)))</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineNoCov">          0 :                         ret = -EFAULT;</span></a>
+<a name="97"><span class="lineNum">      97 </span>            :                 break;</a>
+<a name="98"><span class="lineNum">      98 </span>            :         case FBIOGET_FSCREENINFO:</a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineNoCov">          0 :                 lock_fb_info(info);</span></a>
+<a name="100"><span class="lineNum">     100 </span><span class="lineNoCov">          0 :                 memcpy(&amp;fix, &amp;info-&gt;fix, sizeof(fix));</span></a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :                 if (info-&gt;flags &amp; FBINFO_HIDE_SMEM_START)</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 :                         fix.smem_start = 0;</span></a>
+<a name="103"><span class="lineNum">     103 </span><span class="lineNoCov">          0 :                 unlock_fb_info(info);</span></a>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :                 ret = copy_to_user(argp, &amp;fix, sizeof(fix)) ? -EFAULT : 0;</span></a>
+<a name="106"><span class="lineNum">     106 </span>            :                 break;</a>
+<a name="107"><span class="lineNum">     107 </span>            :         case FBIOPUTCMAP:</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 if (copy_from_user(&amp;cmap, argp, sizeof(cmap)))</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :                         return -EFAULT;</a>
+<a name="110"><span class="lineNum">     110 </span><span class="lineNoCov">          0 :                 ret = fb_set_user_cmap(&amp;cmap, info);</span></a>
+<a name="111"><span class="lineNum">     111 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="112"><span class="lineNum">     112 </span>            :         case FBIOGETCMAP:</a>
+<a name="113"><span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 if (copy_from_user(&amp;cmap, argp, sizeof(cmap)))</span></a>
+<a name="114"><span class="lineNum">     114 </span>            :                         return -EFAULT;</a>
+<a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 :                 lock_fb_info(info);</span></a>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 :                 cmap_from = info-&gt;cmap;</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 unlock_fb_info(info);</span></a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :                 ret = fb_cmap_to_user(&amp;cmap_from, &amp;cmap);</span></a>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="120"><span class="lineNum">     120 </span>            :         case FBIOPAN_DISPLAY:</a>
+<a name="121"><span class="lineNum">     121 </span><span class="lineNoCov">          0 :                 if (copy_from_user(&amp;var, argp, sizeof(var)))</span></a>
+<a name="122"><span class="lineNum">     122 </span>            :                         return -EFAULT;</a>
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 console_lock();</span></a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 lock_fb_info(info);</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 ret = fb_pan_display(info, &amp;var);</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 unlock_fb_info(info);</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineNoCov">          0 :                 console_unlock();</span></a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :                 if (ret == 0 &amp;&amp; copy_to_user(argp, &amp;var, sizeof(var)))</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :                         return -EFAULT;</a>
+<a name="130"><span class="lineNum">     130 </span>            :                 break;</a>
+<a name="131"><span class="lineNum">     131 </span>            :         case FBIO_CURSOR:</a>
+<a name="132"><span class="lineNum">     132 </span>            :                 ret = -EINVAL;</a>
+<a name="133"><span class="lineNum">     133 </span>            :                 break;</a>
+<a name="134"><span class="lineNum">     134 </span>            :         case FBIOGET_CON2FBMAP:</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 ret = fbcon_get_con2fb_map_ioctl(argp);</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :         case FBIOPUT_CON2FBMAP:</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineNoCov">          0 :                 ret = fbcon_set_con2fb_map_ioctl(argp);</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="140"><span class="lineNum">     140 </span>            :         case FBIOBLANK:</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 :                 if (arg &gt; FB_BLANK_POWERDOWN)</span></a>
+<a name="142"><span class="lineNum">     142 </span>            :                         return -EINVAL;</a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 console_lock();</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 lock_fb_info(info);</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :                 ret = fb_blank(info, arg);</span></a>
+<a name="146"><span class="lineNum">     146 </span>            :                 /* might again call into fb_blank */</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 fbcon_fb_blanked(info, arg);</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :                 unlock_fb_info(info);</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :                 console_unlock();</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineNoCov">          0 :                 break;</span></a>
+<a name="151"><span class="lineNum">     151 </span>            :         default:</a>
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 lock_fb_info(info);</span></a>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 :                 fb = info-&gt;fbops;</span></a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 :                 if (fb-&gt;fb_ioctl)</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :                         ret = fb-&gt;fb_ioctl(info, cmd, arg);</span></a>
+<a name="156"><span class="lineNum">     156 </span>            :                 else</a>
+<a name="157"><span class="lineNum">     157 </span>            :                         ret = -ENOTTY;</a>
+<a name="158"><span class="lineNum">     158 </span>            :                 unlock_fb_info(info);</a>
+<a name="159"><span class="lineNum">     159 </span>            :         }</a>
+<a name="160"><span class="lineNum">     160 </span>            :         return ret;</a>
+<a name="161"><span class="lineNum">     161 </span>            : }</a>
+<a name="162"><span class="lineNum">     162 </span>            : </a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 : static long fb_ioctl(struct file *file, unsigned int cmd, unsigned long arg)</span></a>
+<a name="164"><span class="lineNum">     164 </span>            : {</a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 :         struct fb_info *info = file_fb_info(file);</span></a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :         if (!info)</span></a>
+<a name="168"><span class="lineNum">     168 </span>            :                 return -ENODEV;</a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineNoCov">          0 :         return do_fb_ioctl(info, cmd, arg);</span></a>
+<a name="170"><span class="lineNum">     170 </span>            : }</a>
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<a name="172"><span class="lineNum">     172 </span>            : #ifdef CONFIG_COMPAT</a>
+<a name="173"><span class="lineNum">     173 </span>            : struct fb_fix_screeninfo32 {</a>
+<a name="174"><span class="lineNum">     174 </span>            :         char                    id[16];</a>
+<a name="175"><span class="lineNum">     175 </span>            :         compat_caddr_t          smem_start;</a>
+<a name="176"><span class="lineNum">     176 </span>            :         u32                     smem_len;</a>
+<a name="177"><span class="lineNum">     177 </span>            :         u32                     type;</a>
+<a name="178"><span class="lineNum">     178 </span>            :         u32                     type_aux;</a>
+<a name="179"><span class="lineNum">     179 </span>            :         u32                     visual;</a>
+<a name="180"><span class="lineNum">     180 </span>            :         u16                     xpanstep;</a>
+<a name="181"><span class="lineNum">     181 </span>            :         u16                     ypanstep;</a>
+<a name="182"><span class="lineNum">     182 </span>            :         u16                     ywrapstep;</a>
+<a name="183"><span class="lineNum">     183 </span>            :         u32                     line_length;</a>
+<a name="184"><span class="lineNum">     184 </span>            :         compat_caddr_t          mmio_start;</a>
+<a name="185"><span class="lineNum">     185 </span>            :         u32                     mmio_len;</a>
+<a name="186"><span class="lineNum">     186 </span>            :         u32                     accel;</a>
+<a name="187"><span class="lineNum">     187 </span>            :         u16                     reserved[3];</a>
+<a name="188"><span class="lineNum">     188 </span>            : };</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            : struct fb_cmap32 {</a>
+<a name="191"><span class="lineNum">     191 </span>            :         u32                     start;</a>
+<a name="192"><span class="lineNum">     192 </span>            :         u32                     len;</a>
+<a name="193"><span class="lineNum">     193 </span>            :         compat_caddr_t  red;</a>
+<a name="194"><span class="lineNum">     194 </span>            :         compat_caddr_t  green;</a>
+<a name="195"><span class="lineNum">     195 </span>            :         compat_caddr_t  blue;</a>
+<a name="196"><span class="lineNum">     196 </span>            :         compat_caddr_t  transp;</a>
+<a name="197"><span class="lineNum">     197 </span>            : };</a>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<a name="199"><span class="lineNum">     199 </span>            : static int fb_getput_cmap(struct fb_info *info, unsigned int cmd,</a>
+<a name="200"><span class="lineNum">     200 </span>            :                           unsigned long arg)</a>
+<a name="201"><span class="lineNum">     201 </span>            : {</a>
+<a name="202"><span class="lineNum">     202 </span>            :         struct fb_cmap32 cmap32;</a>
+<a name="203"><span class="lineNum">     203 </span>            :         struct fb_cmap cmap_from;</a>
+<a name="204"><span class="lineNum">     204 </span>            :         struct fb_cmap_user cmap;</a>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<a name="206"><span class="lineNum">     206 </span>            :         if (copy_from_user(&amp;cmap32, compat_ptr(arg), sizeof(cmap32)))</a>
+<a name="207"><span class="lineNum">     207 </span>            :                 return -EFAULT;</a>
+<a name="208"><span class="lineNum">     208 </span>            : </a>
+<a name="209"><span class="lineNum">     209 </span>            :         cmap = (struct fb_cmap_user) {</a>
+<a name="210"><span class="lineNum">     210 </span>            :                 .start  = cmap32.start,</a>
+<a name="211"><span class="lineNum">     211 </span>            :                 .len    = cmap32.len,</a>
+<a name="212"><span class="lineNum">     212 </span>            :                 .red    = compat_ptr(cmap32.red),</a>
+<a name="213"><span class="lineNum">     213 </span>            :                 .green  = compat_ptr(cmap32.green),</a>
+<a name="214"><span class="lineNum">     214 </span>            :                 .blue   = compat_ptr(cmap32.blue),</a>
+<a name="215"><span class="lineNum">     215 </span>            :                 .transp = compat_ptr(cmap32.transp),</a>
+<a name="216"><span class="lineNum">     216 </span>            :         };</a>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            :         if (cmd == FBIOPUTCMAP)</a>
+<a name="219"><span class="lineNum">     219 </span>            :                 return fb_set_user_cmap(&amp;cmap, info);</a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span>            :         lock_fb_info(info);</a>
+<a name="222"><span class="lineNum">     222 </span>            :         cmap_from = info-&gt;cmap;</a>
+<a name="223"><span class="lineNum">     223 </span>            :         unlock_fb_info(info);</a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span>            :         return fb_cmap_to_user(&amp;cmap_from, &amp;cmap);</a>
+<a name="226"><span class="lineNum">     226 </span>            : }</a>
+<a name="227"><span class="lineNum">     227 </span>            : </a>
+<a name="228"><span class="lineNum">     228 </span>            : static int do_fscreeninfo_to_user(struct fb_fix_screeninfo *fix,</a>
+<a name="229"><span class="lineNum">     229 </span>            :                                   struct fb_fix_screeninfo32 __user *fix32)</a>
+<a name="230"><span class="lineNum">     230 </span>            : {</a>
+<a name="231"><span class="lineNum">     231 </span>            :         __u32 data;</a>
+<a name="232"><span class="lineNum">     232 </span>            :         int err;</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span>            :         err = copy_to_user(&amp;fix32-&gt;id, &amp;fix-&gt;id, sizeof(fix32-&gt;id));</a>
+<a name="235"><span class="lineNum">     235 </span>            : </a>
+<a name="236"><span class="lineNum">     236 </span>            :         data = (__u32) (unsigned long) fix-&gt;smem_start;</a>
+<a name="237"><span class="lineNum">     237 </span>            :         err |= put_user(data, &amp;fix32-&gt;smem_start);</a>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<a name="239"><span class="lineNum">     239 </span>            :         err |= put_user(fix-&gt;smem_len, &amp;fix32-&gt;smem_len);</a>
+<a name="240"><span class="lineNum">     240 </span>            :         err |= put_user(fix-&gt;type, &amp;fix32-&gt;type);</a>
+<a name="241"><span class="lineNum">     241 </span>            :         err |= put_user(fix-&gt;type_aux, &amp;fix32-&gt;type_aux);</a>
+<a name="242"><span class="lineNum">     242 </span>            :         err |= put_user(fix-&gt;visual, &amp;fix32-&gt;visual);</a>
+<a name="243"><span class="lineNum">     243 </span>            :         err |= put_user(fix-&gt;xpanstep, &amp;fix32-&gt;xpanstep);</a>
+<a name="244"><span class="lineNum">     244 </span>            :         err |= put_user(fix-&gt;ypanstep, &amp;fix32-&gt;ypanstep);</a>
+<a name="245"><span class="lineNum">     245 </span>            :         err |= put_user(fix-&gt;ywrapstep, &amp;fix32-&gt;ywrapstep);</a>
+<a name="246"><span class="lineNum">     246 </span>            :         err |= put_user(fix-&gt;line_length, &amp;fix32-&gt;line_length);</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span>            :         data = (__u32) (unsigned long) fix-&gt;mmio_start;</a>
+<a name="249"><span class="lineNum">     249 </span>            :         err |= put_user(data, &amp;fix32-&gt;mmio_start);</a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :         err |= put_user(fix-&gt;mmio_len, &amp;fix32-&gt;mmio_len);</a>
+<a name="252"><span class="lineNum">     252 </span>            :         err |= put_user(fix-&gt;accel, &amp;fix32-&gt;accel);</a>
+<a name="253"><span class="lineNum">     253 </span>            :         err |= copy_to_user(fix32-&gt;reserved, fix-&gt;reserved,</a>
+<a name="254"><span class="lineNum">     254 </span>            :                             sizeof(fix-&gt;reserved));</a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span>            :         if (err)</a>
+<a name="257"><span class="lineNum">     257 </span>            :                 return -EFAULT;</a>
+<a name="258"><span class="lineNum">     258 </span>            :         return 0;</a>
+<a name="259"><span class="lineNum">     259 </span>            : }</a>
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<a name="261"><span class="lineNum">     261 </span>            : static int fb_get_fscreeninfo(struct fb_info *info, unsigned int cmd,</a>
+<a name="262"><span class="lineNum">     262 </span>            :                               unsigned long arg)</a>
+<a name="263"><span class="lineNum">     263 </span>            : {</a>
+<a name="264"><span class="lineNum">     264 </span>            :         struct fb_fix_screeninfo fix;</a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            :         lock_fb_info(info);</a>
+<a name="267"><span class="lineNum">     267 </span>            :         fix = info-&gt;fix;</a>
+<a name="268"><span class="lineNum">     268 </span>            :         if (info-&gt;flags &amp; FBINFO_HIDE_SMEM_START)</a>
+<a name="269"><span class="lineNum">     269 </span>            :                 fix.smem_start = 0;</a>
+<a name="270"><span class="lineNum">     270 </span>            :         unlock_fb_info(info);</a>
+<a name="271"><span class="lineNum">     271 </span>            :         return do_fscreeninfo_to_user(&amp;fix, compat_ptr(arg));</a>
+<a name="272"><span class="lineNum">     272 </span>            : }</a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span>            : static long fb_compat_ioctl(struct file *file, unsigned int cmd,</a>
+<a name="275"><span class="lineNum">     275 </span>            :                             unsigned long arg)</a>
+<a name="276"><span class="lineNum">     276 </span>            : {</a>
+<a name="277"><span class="lineNum">     277 </span>            :         struct fb_info *info = file_fb_info(file);</a>
+<a name="278"><span class="lineNum">     278 </span>            :         const struct fb_ops *fb;</a>
+<a name="279"><span class="lineNum">     279 </span>            :         long ret = -ENOIOCTLCMD;</a>
+<a name="280"><span class="lineNum">     280 </span>            : </a>
+<a name="281"><span class="lineNum">     281 </span>            :         if (!info)</a>
+<a name="282"><span class="lineNum">     282 </span>            :                 return -ENODEV;</a>
+<a name="283"><span class="lineNum">     283 </span>            :         fb = info-&gt;fbops;</a>
+<a name="284"><span class="lineNum">     284 </span>            :         switch (cmd) {</a>
+<a name="285"><span class="lineNum">     285 </span>            :         case FBIOGET_VSCREENINFO:</a>
+<a name="286"><span class="lineNum">     286 </span>            :         case FBIOPUT_VSCREENINFO:</a>
+<a name="287"><span class="lineNum">     287 </span>            :         case FBIOPAN_DISPLAY:</a>
+<a name="288"><span class="lineNum">     288 </span>            :         case FBIOGET_CON2FBMAP:</a>
+<a name="289"><span class="lineNum">     289 </span>            :         case FBIOPUT_CON2FBMAP:</a>
+<a name="290"><span class="lineNum">     290 </span>            :                 arg = (unsigned long) compat_ptr(arg);</a>
+<a name="291"><span class="lineNum">     291 </span>            :                 fallthrough;</a>
+<a name="292"><span class="lineNum">     292 </span>            :         case FBIOBLANK:</a>
+<a name="293"><span class="lineNum">     293 </span>            :                 ret = do_fb_ioctl(info, cmd, arg);</a>
+<a name="294"><span class="lineNum">     294 </span>            :                 break;</a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span>            :         case FBIOGET_FSCREENINFO:</a>
+<a name="297"><span class="lineNum">     297 </span>            :                 ret = fb_get_fscreeninfo(info, cmd, arg);</a>
+<a name="298"><span class="lineNum">     298 </span>            :                 break;</a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span>            :         case FBIOGETCMAP:</a>
+<a name="301"><span class="lineNum">     301 </span>            :         case FBIOPUTCMAP:</a>
+<a name="302"><span class="lineNum">     302 </span>            :                 ret = fb_getput_cmap(info, cmd, arg);</a>
+<a name="303"><span class="lineNum">     303 </span>            :                 break;</a>
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<a name="305"><span class="lineNum">     305 </span>            :         default:</a>
+<a name="306"><span class="lineNum">     306 </span>            :                 if (fb-&gt;fb_compat_ioctl)</a>
+<a name="307"><span class="lineNum">     307 </span>            :                         ret = fb-&gt;fb_compat_ioctl(info, cmd, arg);</a>
+<a name="308"><span class="lineNum">     308 </span>            :                 break;</a>
+<a name="309"><span class="lineNum">     309 </span>            :         }</a>
+<a name="310"><span class="lineNum">     310 </span>            :         return ret;</a>
+<a name="311"><span class="lineNum">     311 </span>            : }</a>
+<a name="312"><span class="lineNum">     312 </span>            : #endif</a>
+<a name="313"><span class="lineNum">     313 </span>            : </a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineNoCov">          0 : static int fb_mmap(struct file *file, struct vm_area_struct *vma)</span></a>
+<a name="315"><span class="lineNum">     315 </span>            : {</a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineNoCov">          0 :         struct fb_info *info = file_fb_info(file);</span></a>
+<a name="317"><span class="lineNum">     317 </span>            :         unsigned long mmio_pgoff;</a>
+<a name="318"><span class="lineNum">     318 </span>            :         unsigned long start;</a>
+<a name="319"><span class="lineNum">     319 </span>            :         u32 len;</a>
+<a name="320"><span class="lineNum">     320 </span>            : </a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :         if (!info)</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :                 return -ENODEV;</a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :         mutex_lock(&amp;info-&gt;mm_lock);</span></a>
+<a name="324"><span class="lineNum">     324 </span>            : </a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 :         if (info-&gt;fbops-&gt;fb_mmap) {</span></a>
+<a name="326"><span class="lineNum">     326 </span>            :                 int res;</a>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<a name="328"><span class="lineNum">     328 </span>            :                 /*</a>
+<a name="329"><span class="lineNum">     329 </span>            :                  * The framebuffer needs to be accessed decrypted, be sure</a>
+<a name="330"><span class="lineNum">     330 </span>            :                  * SME protection is removed ahead of the call</a>
+<a name="331"><span class="lineNum">     331 </span>            :                  */</a>
+<a name="332"><span class="lineNum">     332 </span>            :                 vma-&gt;vm_page_prot = pgprot_decrypted(vma-&gt;vm_page_prot);</a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 res = info-&gt;fbops-&gt;fb_mmap(info, vma);</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 mutex_unlock(&amp;info-&gt;mm_lock);</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineNoCov">          0 :                 return res;</span></a>
+<a name="336"><span class="lineNum">     336 </span>            : #if IS_ENABLED(CONFIG_FB_DEFERRED_IO)</a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :         } else if (info-&gt;fbdefio) {</span></a>
+<a name="338"><span class="lineNum">     338 </span>            :                 /*</a>
+<a name="339"><span class="lineNum">     339 </span>            :                  * FB deferred I/O wants you to handle mmap in your drivers. At a</a>
+<a name="340"><span class="lineNum">     340 </span>            :                  * minimum, point struct fb_ops.fb_mmap to fb_deferred_io_mmap().</a>
+<a name="341"><span class="lineNum">     341 </span>            :                  */</a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 :                 dev_warn_once(info-&gt;dev, &quot;fbdev mmap not set up for deferred I/O.\n&quot;);</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 :                 mutex_unlock(&amp;info-&gt;mm_lock);</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 return -ENODEV;</span></a>
+<a name="345"><span class="lineNum">     345 </span>            : #endif</a>
+<a name="346"><span class="lineNum">     346 </span>            :         }</a>
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<a name="348"><span class="lineNum">     348 </span>            :         /*</a>
+<a name="349"><span class="lineNum">     349 </span>            :          * Ugh. This can be either the frame buffer mapping, or</a>
+<a name="350"><span class="lineNum">     350 </span>            :          * if pgoff points past it, the mmio mapping.</a>
+<a name="351"><span class="lineNum">     351 </span>            :          */</a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :         start = info-&gt;fix.smem_start;</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 :         len = info-&gt;fix.smem_len;</span></a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :         mmio_pgoff = PAGE_ALIGN((start &amp; ~PAGE_MASK) + len) &gt;&gt; PAGE_SHIFT;</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineNoCov">          0 :         if (vma-&gt;vm_pgoff &gt;= mmio_pgoff) {</span></a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :                 if (info-&gt;var.accel_flags) {</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :                         mutex_unlock(&amp;info-&gt;mm_lock);</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineNoCov">          0 :                         return -EINVAL;</span></a>
+<a name="359"><span class="lineNum">     359 </span>            :                 }</a>
+<a name="360"><span class="lineNum">     360 </span>            : </a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 vma-&gt;vm_pgoff -= mmio_pgoff;</span></a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 start = info-&gt;fix.mmio_start;</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineNoCov">          0 :                 len = info-&gt;fix.mmio_len;</span></a>
+<a name="364"><span class="lineNum">     364 </span>            :         }</a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 :         mutex_unlock(&amp;info-&gt;mm_lock);</span></a>
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :         vma-&gt;vm_page_prot = vm_get_page_prot(vma-&gt;vm_flags);</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineNoCov">          0 :         fb_pgprotect(file, vma, start);</span></a>
+<a name="369"><span class="lineNum">     369 </span>            : </a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineNoCov">          0 :         return vm_iomap_memory(vma, start, len);</span></a>
+<a name="371"><span class="lineNum">     371 </span>            : }</a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 : static int fb_open(struct inode *inode, struct file *file)</span></a>
+<a name="374"><span class="lineNum">     374 </span>            : __acquires(&amp;info-&gt;lock)</a>
+<a name="375"><span class="lineNum">     375 </span>            : __releases(&amp;info-&gt;lock)</a>
+<a name="376"><span class="lineNum">     376 </span>            : {</a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :         int fbidx = iminor(inode);</span></a>
+<a name="378"><span class="lineNum">     378 </span>            :         struct fb_info *info;</a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineNoCov">          0 :         int res = 0;</span></a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineNoCov">          0 :         info = get_fb_info(fbidx);</span></a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineNoCov">          0 :         if (!info) {</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineNoCov">          0 :                 request_module(&quot;fb%d&quot;, fbidx);</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 info = get_fb_info(fbidx);</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 if (!info)</span></a>
+<a name="386"><span class="lineNum">     386 </span>            :                         return -ENODEV;</a>
+<a name="387"><span class="lineNum">     387 </span>            :         }</a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 :         if (IS_ERR(info))</span></a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineNoCov">          0 :                 return PTR_ERR(info);</span></a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :         lock_fb_info(info);</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :         if (!try_module_get(info-&gt;fbops-&gt;owner)) {</span></a>
+<a name="393"><span class="lineNum">     393 </span>            :                 res = -ENODEV;</a>
+<a name="394"><span class="lineNum">     394 </span>            :                 goto out;</a>
+<a name="395"><span class="lineNum">     395 </span>            :         }</a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineNoCov">          0 :         file-&gt;private_data = info;</span></a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 :         if (info-&gt;fbops-&gt;fb_open) {</span></a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineNoCov">          0 :                 res = info-&gt;fbops-&gt;fb_open(info, 1);</span></a>
+<a name="399"><span class="lineNum">     399 </span>            :                 if (res)</a>
+<a name="400"><span class="lineNum">     400 </span>            :                         module_put(info-&gt;fbops-&gt;owner);</a>
+<a name="401"><span class="lineNum">     401 </span>            :         }</a>
+<a name="402"><span class="lineNum">     402 </span>            : #ifdef CONFIG_FB_DEFERRED_IO</a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :         if (info-&gt;fbdefio)</span></a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineNoCov">          0 :                 fb_deferred_io_open(info, inode, file);</span></a>
+<a name="405"><span class="lineNum">     405 </span>            : #endif</a>
+<a name="406"><span class="lineNum">     406 </span>            : out:</a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :         unlock_fb_info(info);</span></a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineNoCov">          0 :         if (res)</span></a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineNoCov">          0 :                 put_fb_info(info);</span></a>
+<a name="410"><span class="lineNum">     410 </span>            :         return res;</a>
+<a name="411"><span class="lineNum">     411 </span>            : }</a>
+<a name="412"><span class="lineNum">     412 </span>            : </a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 : static int fb_release(struct inode *inode, struct file *file)</span></a>
+<a name="414"><span class="lineNum">     414 </span>            : __acquires(&amp;info-&gt;lock)</a>
+<a name="415"><span class="lineNum">     415 </span>            : __releases(&amp;info-&gt;lock)</a>
+<a name="416"><span class="lineNum">     416 </span>            : {</a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineNoCov">          0 :         struct fb_info * const info = file-&gt;private_data;</span></a>
+<a name="418"><span class="lineNum">     418 </span>            : </a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :         lock_fb_info(info);</span></a>
+<a name="420"><span class="lineNum">     420 </span>            : #if IS_ENABLED(CONFIG_FB_DEFERRED_IO)</a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :         if (info-&gt;fbdefio)</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 fb_deferred_io_release(info);</span></a>
+<a name="423"><span class="lineNum">     423 </span>            : #endif</a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineNoCov">          0 :         if (info-&gt;fbops-&gt;fb_release)</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :                 info-&gt;fbops-&gt;fb_release(info, 1);</span></a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineNoCov">          0 :         module_put(info-&gt;fbops-&gt;owner);</span></a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineNoCov">          0 :         unlock_fb_info(info);</span></a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :         put_fb_info(info);</span></a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :         return 0;</span></a>
+<a name="430"><span class="lineNum">     430 </span>            : }</a>
+<a name="431"><span class="lineNum">     431 </span>            : </a>
+<a name="432"><span class="lineNum">     432 </span>            : #if defined(CONFIG_FB_PROVIDE_GET_FB_UNMAPPED_AREA) &amp;&amp; !defined(CONFIG_MMU)</a>
+<a name="433"><span class="lineNum">     433 </span>            : static unsigned long get_fb_unmapped_area(struct file *filp,</a>
+<a name="434"><span class="lineNum">     434 </span>            :                                    unsigned long addr, unsigned long len,</a>
+<a name="435"><span class="lineNum">     435 </span>            :                                    unsigned long pgoff, unsigned long flags)</a>
+<a name="436"><span class="lineNum">     436 </span>            : {</a>
+<a name="437"><span class="lineNum">     437 </span>            :         struct fb_info * const info = filp-&gt;private_data;</a>
+<a name="438"><span class="lineNum">     438 </span>            :         unsigned long fb_size = PAGE_ALIGN(info-&gt;fix.smem_len);</a>
+<a name="439"><span class="lineNum">     439 </span>            : </a>
+<a name="440"><span class="lineNum">     440 </span>            :         if (pgoff &gt; fb_size || len &gt; fb_size - pgoff)</a>
+<a name="441"><span class="lineNum">     441 </span>            :                 return -EINVAL;</a>
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<a name="443"><span class="lineNum">     443 </span>            :         return (unsigned long)info-&gt;screen_base + pgoff;</a>
+<a name="444"><span class="lineNum">     444 </span>            : }</a>
+<a name="445"><span class="lineNum">     445 </span>            : #endif</a>
+<a name="446"><span class="lineNum">     446 </span>            : </a>
+<a name="447"><span class="lineNum">     447 </span>            : static const struct file_operations fb_fops = {</a>
+<a name="448"><span class="lineNum">     448 </span>            :         .owner = THIS_MODULE,</a>
+<a name="449"><span class="lineNum">     449 </span>            :         .read = fb_read,</a>
+<a name="450"><span class="lineNum">     450 </span>            :         .write = fb_write,</a>
+<a name="451"><span class="lineNum">     451 </span>            :         .unlocked_ioctl = fb_ioctl,</a>
+<a name="452"><span class="lineNum">     452 </span>            : #ifdef CONFIG_COMPAT</a>
+<a name="453"><span class="lineNum">     453 </span>            :         .compat_ioctl = fb_compat_ioctl,</a>
+<a name="454"><span class="lineNum">     454 </span>            : #endif</a>
+<a name="455"><span class="lineNum">     455 </span>            :         .mmap = fb_mmap,</a>
+<a name="456"><span class="lineNum">     456 </span>            :         .open = fb_open,</a>
+<a name="457"><span class="lineNum">     457 </span>            :         .release = fb_release,</a>
+<a name="458"><span class="lineNum">     458 </span>            : #if defined(HAVE_ARCH_FB_UNMAPPED_AREA) || \</a>
+<a name="459"><span class="lineNum">     459 </span>            :         (defined(CONFIG_FB_PROVIDE_GET_FB_UNMAPPED_AREA) &amp;&amp; \</a>
+<a name="460"><span class="lineNum">     460 </span>            :          !defined(CONFIG_MMU))</a>
+<a name="461"><span class="lineNum">     461 </span>            :         .get_unmapped_area = get_fb_unmapped_area,</a>
+<a name="462"><span class="lineNum">     462 </span>            : #endif</a>
+<a name="463"><span class="lineNum">     463 </span>            : #ifdef CONFIG_FB_DEFERRED_IO</a>
+<a name="464"><span class="lineNum">     464 </span>            :         .fsync = fb_deferred_io_fsync,</a>
+<a name="465"><span class="lineNum">     465 </span>            : #endif</a>
+<a name="466"><span class="lineNum">     466 </span>            :         .llseek = default_llseek,</a>
+<a name="467"><span class="lineNum">     467 </span>            : };</a>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineCov">          1 : int fb_register_chrdev(void)</span></a>
+<a name="470"><span class="lineNum">     470 </span>            : {</a>
+<a name="471"><span class="lineNum">     471 </span>            :         int ret;</a>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineCov">          1 :         ret = register_chrdev(FB_MAJOR, &quot;fb&quot;, &amp;fb_fops);</span></a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineCov">          1 :         if (ret) {</span></a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :                 pr_err(&quot;Unable to get major %d for fb devs\n&quot;, FB_MAJOR);</span></a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :                 return ret;</span></a>
+<a name="477"><span class="lineNum">     477 </span>            :         }</a>
+<a name="478"><span class="lineNum">     478 </span>            : </a>
+<a name="479"><span class="lineNum">     479 </span>            :         return ret;</a>
+<a name="480"><span class="lineNum">     480 </span>            : }</a>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineNoCov">          0 : void fb_unregister_chrdev(void)</span></a>
+<a name="483"><span class="lineNum">     483 </span>            : {</a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :         unregister_chrdev(FB_MAJOR, &quot;fb&quot;);</span></a>
+<a name="485"><span class="lineNum">     485 </span><span class="lineNoCov">          0 : }</span></a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

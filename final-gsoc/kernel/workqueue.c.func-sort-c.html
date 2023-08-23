@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - kernel/workqueue.c - functions</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">kernel</a> - workqueue.c<span style="font-size: 80%;"> (<a href="workqueue.c.gcov.html">source</a> / functions)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">690</td>
+            <td class="headerCovTableEntry">1676</td>
+            <td class="headerCovTableEntryLo">41.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-08-24 13:40:31</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntry">131</td>
+            <td class="headerCovTableEntryLo">45.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <center>
+  <table width="60%" cellpadding=1 cellspacing=1 border=0>
+    <tr><td><br></td></tr>
+    <tr>
+      <td width="80%" class="tableHead">Function Name <span class="tableHeadSort"><a href="workqueue.c.func.html"><img src="../updown.png" width=10 height=14 alt="Sort by function name" title="Sort by function name" border=0></a></span></td>
+      <td width="20%" class="tableHead">Hit count <span class="tableHeadSort"><img src="../glass.png" width=10 height=14 alt="Sort by hit count" title="Sort by hit count" border=0></span></td>
+    </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3423">__cancel_work_timer</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3108">__flush_workqueue</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6577">__warn_flushing_systemwide_wq</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3610">cancel_delayed_work_sync</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3573">cancel_work</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3505">cancel_work_sync</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4884">current_is_workqueue_rescuer</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4868">current_work</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3414">cwt_wakefn</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1835">delayed_work_timer_fn</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4736">destroy_workqueue</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3270">drain_workqueue</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3665">execute_in_process_context</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3523">flush_delayed_work</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3541">flush_rcu_work</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3061">flush_workqueue_prep_pwqs</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3685">free_workqueue_attrs</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5627">freeze_workqueues_begin</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5660">freeze_workqueues_busy</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2299">idle_cull_fn</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2260">idle_worker_timeout</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#802">mark_work_canceling</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5840">max_active_show</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5848">max_active_store</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1925">mod_delayed_work_on</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5831">per_cpu_show</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2358">pool_mayday_timeout</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5039">pr_cont_pool_info</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5074">pr_cont_work</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5053">pr_cont_work_flush</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3867">put_unbound_pool</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1354">pwq_activate_inactive_work</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4025">pwq_unbound_release_workfn</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1965">queue_rcu_work</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1804">queue_work_node</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3847">rcu_free_pool</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4015">rcu_free_pwq</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3832">rcu_free_wq</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1945">rcu_work_rcufn</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3627">schedule_on_each_cpu</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2334">send_mayday</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4977">set_worker_desc</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2228">set_worker_dying</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5265">show_all_workqueues</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5290">show_freezable_workqueues</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5215">show_one_worker_pool</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5171">show_one_workqueue</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5091">show_pwq</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5702">thaw_workqueues</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2185">unbind_worker.isra.36</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2196">wake_dying_workers</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4944">work_busy</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2089">worker_detach_from_pool</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5727">workqueue_apply_unbound_cpumask</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4909">workqueue_congested</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4838">workqueue_set_max_active</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5778">workqueue_set_unbound_cpumask</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5945">wq_cpumask_show</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5958">wq_cpumask_store</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6086">wq_device_release</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5892">wq_nice_show</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5920">wq_nice_store</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5982">wq_numa_show</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5996">wq_numa_store</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5870">wq_pool_ids_show</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5906">wq_sysfs_prep_attrs</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6034">wq_unbound_cpumask_show</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6047">wq_unbound_cpumask_store</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5308">wq_worker_comm</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1201">wq_worker_last_func</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1132">wq_worker_tick</a></td>
+              <td class="coverFnLo">0</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#5003">print_worker_info</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6523">workqueue_init</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6445">workqueue_init_early</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6108">workqueue_sysfs_register</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#6068">wq_sysfs_init</a></td>
+              <td class="coverFnHi">1</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1844">__queue_delayed_work</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2925">check_flush_dependency</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2982">insert_wq_barrier</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2454">manage_workers</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2401">maybe_create_worker</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1887">queue_delayed_work_on</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2952">wq_barrier_func</a></td>
+              <td class="coverFnHi">2</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4158">alloc_unbound_pwq</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4429">apply_workqueue_attrs</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4383">apply_workqueue_attrs_locked</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4260">apply_wqattrs_cleanup</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4349">apply_wqattrs_commit</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4277">apply_wqattrs_prepare</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3955">get_unbound_pool</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3763">init_worker_pool</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4202">wq_calc_node_cpumask</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3732">wqattrs_hash</a></td>
+              <td class="coverFnHi">3</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2792">rescuer_thread</a></td>
+              <td class="coverFnHi">4</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2123">create_worker</a></td>
+              <td class="coverFnHi">5</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2057">worker_attach_to_pool</a></td>
+              <td class="coverFnHi">5</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2688">worker_thread</a></td>
+              <td class="coverFnHi">5</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1341">put_pwq_unlocked</a></td>
+              <td class="coverFnHi">6</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1583">wq_select_unbound_cpu</a></td>
+              <td class="coverFnHi">7</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4465">wq_update_unbound_numa</a></td>
+              <td class="coverFnHi">8</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3370">__flush_work</a></td>
+              <td class="coverFnHi">9</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2033">alloc_worker</a></td>
+              <td class="coverFnHi">9</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3403">flush_work</a></td>
+              <td class="coverFnHi">9</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2666">set_pf_worker</a></td>
+              <td class="coverFnHi">9</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3314">start_flush_work</a></td>
+              <td class="coverFnHi">9</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#909">worker_set_flags</a></td>
+              <td class="coverFnHi">13</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1609">__queue_work</a></td>
+              <td class="coverFnHi">14</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4528">alloc_and_link_pwqs</a></td>
+              <td class="coverFnHi">14</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4617">alloc_workqueue</a></td>
+              <td class="coverFnHi">14</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4119">init_pwq</a></td>
+              <td class="coverFnHi">14</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4584">init_rescuer</a></td>
+              <td class="coverFnHi">14</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4568">wq_clamp_max_active.isra.32</a></td>
+              <td class="coverFnHi">14</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1733">queue_work_on</a></td>
+              <td class="coverFnHi">15</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1051">wq_worker_running</a></td>
+              <td class="coverFnHi">15</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3701">alloc_workqueue_attrs</a></td>
+              <td class="coverFnHi">16</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1303">get_pwq.isra.35</a></td>
+              <td class="coverFnHi">16</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1545">insert_work</a></td>
+              <td class="coverFnHi">16</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2486">process_one_work</a></td>
+              <td class="coverFnHi">16</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1317">put_pwq</a></td>
+              <td class="coverFnHi">16</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1385">pwq_dec_nr_in_flight</a></td>
+              <td class="coverFnHi">16</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4137">link_pwq</a></td>
+              <td class="coverFnHi">17</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#2022">worker_leave_idle</a></td>
+              <td class="coverFnHi">18</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3553">__cancel_work</a></td>
+              <td class="coverFnHi">21</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#3595">cancel_delayed_work</a></td>
+              <td class="coverFnHi">21</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1451">try_to_grab_pending</a></td>
+              <td class="coverFnHi">21</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#768">get_work_pool</a></td>
+              <td class="coverFnHi">23</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1989">worker_enter_idle</a></td>
+              <td class="coverFnHi">23</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#1085">wq_worker_sleeping</a></td>
+              <td class="coverFnHi">24</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#4071">pwq_adjust_max_active</a></td>
+              <td class="coverFnHi">28</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#934">worker_clr_flags</a></td>
+              <td class="coverFnHi">47</td>
+            </tr>
+    <tr>
+              <td class="coverFn"><a href="workqueue.c.gcov.html#669">set_work_data</a></td>
+              <td class="coverFnHi">53</td>
+            </tr>
+  </table>
+  <br>
+  </center>
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

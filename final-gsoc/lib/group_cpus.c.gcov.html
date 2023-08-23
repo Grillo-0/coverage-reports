@@ -1,0 +1,505 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - lib/group_cpus.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">lib</a> - group_cpus.c<span style="font-size: 80%;"> (source / <a href="group_cpus.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-08-24 13:40:31</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // SPDX-License-Identifier: GPL-2.0</a>
+<a name="2"><span class="lineNum">       2 </span>            : /*</a>
+<a name="3"><span class="lineNum">       3 </span>            :  * Copyright (C) 2016 Thomas Gleixner.</a>
+<a name="4"><span class="lineNum">       4 </span>            :  * Copyright (C) 2016-2017 Christoph Hellwig.</a>
+<a name="5"><span class="lineNum">       5 </span>            :  */</a>
+<a name="6"><span class="lineNum">       6 </span>            : #include &lt;linux/kernel.h&gt;</a>
+<a name="7"><span class="lineNum">       7 </span>            : #include &lt;linux/slab.h&gt;</a>
+<a name="8"><span class="lineNum">       8 </span>            : #include &lt;linux/cpu.h&gt;</a>
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;linux/sort.h&gt;</a>
+<a name="10"><span class="lineNum">      10 </span>            : #include &lt;linux/group_cpus.h&gt;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : #ifdef CONFIG_SMP</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : static void grp_spread_init_one(struct cpumask *irqmsk, struct cpumask *nmsk,</a>
+<a name="15"><span class="lineNum">      15 </span>            :                                 unsigned int cpus_per_grp)</a>
+<a name="16"><span class="lineNum">      16 </span>            : {</a>
+<a name="17"><span class="lineNum">      17 </span>            :         const struct cpumask *siblmsk;</a>
+<a name="18"><span class="lineNum">      18 </span>            :         int cpu, sibl;</a>
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<a name="20"><span class="lineNum">      20 </span>            :         for ( ; cpus_per_grp &gt; 0; ) {</a>
+<a name="21"><span class="lineNum">      21 </span>            :                 cpu = cpumask_first(nmsk);</a>
+<a name="22"><span class="lineNum">      22 </span>            : </a>
+<a name="23"><span class="lineNum">      23 </span>            :                 /* Should not happen, but I'm too lazy to think about it */</a>
+<a name="24"><span class="lineNum">      24 </span>            :                 if (cpu &gt;= nr_cpu_ids)</a>
+<a name="25"><span class="lineNum">      25 </span>            :                         return;</a>
+<a name="26"><span class="lineNum">      26 </span>            : </a>
+<a name="27"><span class="lineNum">      27 </span>            :                 cpumask_clear_cpu(cpu, nmsk);</a>
+<a name="28"><span class="lineNum">      28 </span>            :                 cpumask_set_cpu(cpu, irqmsk);</a>
+<a name="29"><span class="lineNum">      29 </span>            :                 cpus_per_grp--;</a>
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<a name="31"><span class="lineNum">      31 </span>            :                 /* If the cpu has siblings, use them first */</a>
+<a name="32"><span class="lineNum">      32 </span>            :                 siblmsk = topology_sibling_cpumask(cpu);</a>
+<a name="33"><span class="lineNum">      33 </span>            :                 for (sibl = -1; cpus_per_grp &gt; 0; ) {</a>
+<a name="34"><span class="lineNum">      34 </span>            :                         sibl = cpumask_next(sibl, siblmsk);</a>
+<a name="35"><span class="lineNum">      35 </span>            :                         if (sibl &gt;= nr_cpu_ids)</a>
+<a name="36"><span class="lineNum">      36 </span>            :                                 break;</a>
+<a name="37"><span class="lineNum">      37 </span>            :                         if (!cpumask_test_and_clear_cpu(sibl, nmsk))</a>
+<a name="38"><span class="lineNum">      38 </span>            :                                 continue;</a>
+<a name="39"><span class="lineNum">      39 </span>            :                         cpumask_set_cpu(sibl, irqmsk);</a>
+<a name="40"><span class="lineNum">      40 </span>            :                         cpus_per_grp--;</a>
+<a name="41"><span class="lineNum">      41 </span>            :                 }</a>
+<a name="42"><span class="lineNum">      42 </span>            :         }</a>
+<a name="43"><span class="lineNum">      43 </span>            : }</a>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<a name="45"><span class="lineNum">      45 </span>            : static cpumask_var_t *alloc_node_to_cpumask(void)</a>
+<a name="46"><span class="lineNum">      46 </span>            : {</a>
+<a name="47"><span class="lineNum">      47 </span>            :         cpumask_var_t *masks;</a>
+<a name="48"><span class="lineNum">      48 </span>            :         int node;</a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            :         masks = kcalloc(nr_node_ids, sizeof(cpumask_var_t), GFP_KERNEL);</a>
+<a name="51"><span class="lineNum">      51 </span>            :         if (!masks)</a>
+<a name="52"><span class="lineNum">      52 </span>            :                 return NULL;</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<a name="54"><span class="lineNum">      54 </span>            :         for (node = 0; node &lt; nr_node_ids; node++) {</a>
+<a name="55"><span class="lineNum">      55 </span>            :                 if (!zalloc_cpumask_var(&amp;masks[node], GFP_KERNEL))</a>
+<a name="56"><span class="lineNum">      56 </span>            :                         goto out_unwind;</a>
+<a name="57"><span class="lineNum">      57 </span>            :         }</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<a name="59"><span class="lineNum">      59 </span>            :         return masks;</a>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<a name="61"><span class="lineNum">      61 </span>            : out_unwind:</a>
+<a name="62"><span class="lineNum">      62 </span>            :         while (--node &gt;= 0)</a>
+<a name="63"><span class="lineNum">      63 </span>            :                 free_cpumask_var(masks[node]);</a>
+<a name="64"><span class="lineNum">      64 </span>            :         kfree(masks);</a>
+<a name="65"><span class="lineNum">      65 </span>            :         return NULL;</a>
+<a name="66"><span class="lineNum">      66 </span>            : }</a>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<a name="68"><span class="lineNum">      68 </span>            : static void free_node_to_cpumask(cpumask_var_t *masks)</a>
+<a name="69"><span class="lineNum">      69 </span>            : {</a>
+<a name="70"><span class="lineNum">      70 </span>            :         int node;</a>
+<a name="71"><span class="lineNum">      71 </span>            : </a>
+<a name="72"><span class="lineNum">      72 </span>            :         for (node = 0; node &lt; nr_node_ids; node++)</a>
+<a name="73"><span class="lineNum">      73 </span>            :                 free_cpumask_var(masks[node]);</a>
+<a name="74"><span class="lineNum">      74 </span>            :         kfree(masks);</a>
+<a name="75"><span class="lineNum">      75 </span>            : }</a>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<a name="77"><span class="lineNum">      77 </span>            : static void build_node_to_cpumask(cpumask_var_t *masks)</a>
+<a name="78"><span class="lineNum">      78 </span>            : {</a>
+<a name="79"><span class="lineNum">      79 </span>            :         int cpu;</a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span>            :         for_each_possible_cpu(cpu)</a>
+<a name="82"><span class="lineNum">      82 </span>            :                 cpumask_set_cpu(cpu, masks[cpu_to_node(cpu)]);</a>
+<a name="83"><span class="lineNum">      83 </span>            : }</a>
+<a name="84"><span class="lineNum">      84 </span>            : </a>
+<a name="85"><span class="lineNum">      85 </span>            : static int get_nodes_in_cpumask(cpumask_var_t *node_to_cpumask,</a>
+<a name="86"><span class="lineNum">      86 </span>            :                                 const struct cpumask *mask, nodemask_t *nodemsk)</a>
+<a name="87"><span class="lineNum">      87 </span>            : {</a>
+<a name="88"><span class="lineNum">      88 </span>            :         int n, nodes = 0;</a>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<a name="90"><span class="lineNum">      90 </span>            :         /* Calculate the number of nodes in the supplied affinity mask */</a>
+<a name="91"><span class="lineNum">      91 </span>            :         for_each_node(n) {</a>
+<a name="92"><span class="lineNum">      92 </span>            :                 if (cpumask_intersects(mask, node_to_cpumask[n])) {</a>
+<a name="93"><span class="lineNum">      93 </span>            :                         node_set(n, *nodemsk);</a>
+<a name="94"><span class="lineNum">      94 </span>            :                         nodes++;</a>
+<a name="95"><span class="lineNum">      95 </span>            :                 }</a>
+<a name="96"><span class="lineNum">      96 </span>            :         }</a>
+<a name="97"><span class="lineNum">      97 </span>            :         return nodes;</a>
+<a name="98"><span class="lineNum">      98 </span>            : }</a>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<a name="100"><span class="lineNum">     100 </span>            : struct node_groups {</a>
+<a name="101"><span class="lineNum">     101 </span>            :         unsigned id;</a>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<a name="103"><span class="lineNum">     103 </span>            :         union {</a>
+<a name="104"><span class="lineNum">     104 </span>            :                 unsigned ngroups;</a>
+<a name="105"><span class="lineNum">     105 </span>            :                 unsigned ncpus;</a>
+<a name="106"><span class="lineNum">     106 </span>            :         };</a>
+<a name="107"><span class="lineNum">     107 </span>            : };</a>
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<a name="109"><span class="lineNum">     109 </span>            : static int ncpus_cmp_func(const void *l, const void *r)</a>
+<a name="110"><span class="lineNum">     110 </span>            : {</a>
+<a name="111"><span class="lineNum">     111 </span>            :         const struct node_groups *ln = l;</a>
+<a name="112"><span class="lineNum">     112 </span>            :         const struct node_groups *rn = r;</a>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<a name="114"><span class="lineNum">     114 </span>            :         return ln-&gt;ncpus - rn-&gt;ncpus;</a>
+<a name="115"><span class="lineNum">     115 </span>            : }</a>
+<a name="116"><span class="lineNum">     116 </span>            : </a>
+<a name="117"><span class="lineNum">     117 </span>            : /*</a>
+<a name="118"><span class="lineNum">     118 </span>            :  * Allocate group number for each node, so that for each node:</a>
+<a name="119"><span class="lineNum">     119 </span>            :  *</a>
+<a name="120"><span class="lineNum">     120 </span>            :  * 1) the allocated number is &gt;= 1</a>
+<a name="121"><span class="lineNum">     121 </span>            :  *</a>
+<a name="122"><span class="lineNum">     122 </span>            :  * 2) the allocated number is &lt;= active CPU number of this node</a>
+<a name="123"><span class="lineNum">     123 </span>            :  *</a>
+<a name="124"><span class="lineNum">     124 </span>            :  * The actual allocated total groups may be less than @numgrps when</a>
+<a name="125"><span class="lineNum">     125 </span>            :  * active total CPU number is less than @numgrps.</a>
+<a name="126"><span class="lineNum">     126 </span>            :  *</a>
+<a name="127"><span class="lineNum">     127 </span>            :  * Active CPUs means the CPUs in '@cpu_mask AND @node_to_cpumask[]'</a>
+<a name="128"><span class="lineNum">     128 </span>            :  * for each node.</a>
+<a name="129"><span class="lineNum">     129 </span>            :  */</a>
+<a name="130"><span class="lineNum">     130 </span>            : static void alloc_nodes_groups(unsigned int numgrps,</a>
+<a name="131"><span class="lineNum">     131 </span>            :                                cpumask_var_t *node_to_cpumask,</a>
+<a name="132"><span class="lineNum">     132 </span>            :                                const struct cpumask *cpu_mask,</a>
+<a name="133"><span class="lineNum">     133 </span>            :                                const nodemask_t nodemsk,</a>
+<a name="134"><span class="lineNum">     134 </span>            :                                struct cpumask *nmsk,</a>
+<a name="135"><span class="lineNum">     135 </span>            :                                struct node_groups *node_groups)</a>
+<a name="136"><span class="lineNum">     136 </span>            : {</a>
+<a name="137"><span class="lineNum">     137 </span>            :         unsigned n, remaining_ncpus = 0;</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            :         for (n = 0; n &lt; nr_node_ids; n++) {</a>
+<a name="140"><span class="lineNum">     140 </span>            :                 node_groups[n].id = n;</a>
+<a name="141"><span class="lineNum">     141 </span>            :                 node_groups[n].ncpus = UINT_MAX;</a>
+<a name="142"><span class="lineNum">     142 </span>            :         }</a>
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<a name="144"><span class="lineNum">     144 </span>            :         for_each_node_mask(n, nodemsk) {</a>
+<a name="145"><span class="lineNum">     145 </span>            :                 unsigned ncpus;</a>
+<a name="146"><span class="lineNum">     146 </span>            : </a>
+<a name="147"><span class="lineNum">     147 </span>            :                 cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);</a>
+<a name="148"><span class="lineNum">     148 </span>            :                 ncpus = cpumask_weight(nmsk);</a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<a name="150"><span class="lineNum">     150 </span>            :                 if (!ncpus)</a>
+<a name="151"><span class="lineNum">     151 </span>            :                         continue;</a>
+<a name="152"><span class="lineNum">     152 </span>            :                 remaining_ncpus += ncpus;</a>
+<a name="153"><span class="lineNum">     153 </span>            :                 node_groups[n].ncpus = ncpus;</a>
+<a name="154"><span class="lineNum">     154 </span>            :         }</a>
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<a name="156"><span class="lineNum">     156 </span>            :         numgrps = min_t(unsigned, remaining_ncpus, numgrps);</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span>            :         sort(node_groups, nr_node_ids, sizeof(node_groups[0]),</a>
+<a name="159"><span class="lineNum">     159 </span>            :              ncpus_cmp_func, NULL);</a>
+<a name="160"><span class="lineNum">     160 </span>            : </a>
+<a name="161"><span class="lineNum">     161 </span>            :         /*</a>
+<a name="162"><span class="lineNum">     162 </span>            :          * Allocate groups for each node according to the ratio of this</a>
+<a name="163"><span class="lineNum">     163 </span>            :          * node's nr_cpus to remaining un-assigned ncpus. 'numgrps' is</a>
+<a name="164"><span class="lineNum">     164 </span>            :          * bigger than number of active numa nodes. Always start the</a>
+<a name="165"><span class="lineNum">     165 </span>            :          * allocation from the node with minimized nr_cpus.</a>
+<a name="166"><span class="lineNum">     166 </span>            :          *</a>
+<a name="167"><span class="lineNum">     167 </span>            :          * This way guarantees that each active node gets allocated at</a>
+<a name="168"><span class="lineNum">     168 </span>            :          * least one group, and the theory is simple: over-allocation</a>
+<a name="169"><span class="lineNum">     169 </span>            :          * is only done when this node is assigned by one group, so</a>
+<a name="170"><span class="lineNum">     170 </span>            :          * other nodes will be allocated &gt;= 1 groups, since 'numgrps' is</a>
+<a name="171"><span class="lineNum">     171 </span>            :          * bigger than number of numa nodes.</a>
+<a name="172"><span class="lineNum">     172 </span>            :          *</a>
+<a name="173"><span class="lineNum">     173 </span>            :          * One perfect invariant is that number of allocated groups for</a>
+<a name="174"><span class="lineNum">     174 </span>            :          * each node is &lt;= CPU count of this node:</a>
+<a name="175"><span class="lineNum">     175 </span>            :          *</a>
+<a name="176"><span class="lineNum">     176 </span>            :          * 1) suppose there are two nodes: A and B</a>
+<a name="177"><span class="lineNum">     177 </span>            :          *      ncpu(X) is CPU count of node X</a>
+<a name="178"><span class="lineNum">     178 </span>            :          *      grps(X) is the group count allocated to node X via this</a>
+<a name="179"><span class="lineNum">     179 </span>            :          *      algorithm</a>
+<a name="180"><span class="lineNum">     180 </span>            :          *</a>
+<a name="181"><span class="lineNum">     181 </span>            :          *      ncpu(A) &lt;= ncpu(B)</a>
+<a name="182"><span class="lineNum">     182 </span>            :          *      ncpu(A) + ncpu(B) = N</a>
+<a name="183"><span class="lineNum">     183 </span>            :          *      grps(A) + grps(B) = G</a>
+<a name="184"><span class="lineNum">     184 </span>            :          *</a>
+<a name="185"><span class="lineNum">     185 </span>            :          *      grps(A) = max(1, round_down(G * ncpu(A) / N))</a>
+<a name="186"><span class="lineNum">     186 </span>            :          *      grps(B) = G - grps(A)</a>
+<a name="187"><span class="lineNum">     187 </span>            :          *</a>
+<a name="188"><span class="lineNum">     188 </span>            :          *      both N and G are integer, and 2 &lt;= G &lt;= N, suppose</a>
+<a name="189"><span class="lineNum">     189 </span>            :          *      G = N - delta, and 0 &lt;= delta &lt;= N - 2</a>
+<a name="190"><span class="lineNum">     190 </span>            :          *</a>
+<a name="191"><span class="lineNum">     191 </span>            :          * 2) obviously grps(A) &lt;= ncpu(A) because:</a>
+<a name="192"><span class="lineNum">     192 </span>            :          *</a>
+<a name="193"><span class="lineNum">     193 </span>            :          *      if grps(A) is 1, then grps(A) &lt;= ncpu(A) given</a>
+<a name="194"><span class="lineNum">     194 </span>            :          *      ncpu(A) &gt;= 1</a>
+<a name="195"><span class="lineNum">     195 </span>            :          *</a>
+<a name="196"><span class="lineNum">     196 </span>            :          *      otherwise,</a>
+<a name="197"><span class="lineNum">     197 </span>            :          *              grps(A) &lt;= G * ncpu(A) / N &lt;= ncpu(A), given G &lt;= N</a>
+<a name="198"><span class="lineNum">     198 </span>            :          *</a>
+<a name="199"><span class="lineNum">     199 </span>            :          * 3) prove how grps(B) &lt;= ncpu(B):</a>
+<a name="200"><span class="lineNum">     200 </span>            :          *</a>
+<a name="201"><span class="lineNum">     201 </span>            :          *      if round_down(G * ncpu(A) / N) == 0, vecs(B) won't be</a>
+<a name="202"><span class="lineNum">     202 </span>            :          *      over-allocated, so grps(B) &lt;= ncpu(B),</a>
+<a name="203"><span class="lineNum">     203 </span>            :          *</a>
+<a name="204"><span class="lineNum">     204 </span>            :          *      otherwise:</a>
+<a name="205"><span class="lineNum">     205 </span>            :          *</a>
+<a name="206"><span class="lineNum">     206 </span>            :          *      grps(A) =</a>
+<a name="207"><span class="lineNum">     207 </span>            :          *              round_down(G * ncpu(A) / N) =</a>
+<a name="208"><span class="lineNum">     208 </span>            :          *              round_down((N - delta) * ncpu(A) / N) =</a>
+<a name="209"><span class="lineNum">     209 </span>            :          *              round_down((N * ncpu(A) - delta * ncpu(A)) / N)  &gt;=</a>
+<a name="210"><span class="lineNum">     210 </span>            :          *              round_down((N * ncpu(A) - delta * N) / N)        =</a>
+<a name="211"><span class="lineNum">     211 </span>            :          *              cpu(A) - delta</a>
+<a name="212"><span class="lineNum">     212 </span>            :          *</a>
+<a name="213"><span class="lineNum">     213 </span>            :          *      then:</a>
+<a name="214"><span class="lineNum">     214 </span>            :          *</a>
+<a name="215"><span class="lineNum">     215 </span>            :          *      grps(A) - G &gt;= ncpu(A) - delta - G</a>
+<a name="216"><span class="lineNum">     216 </span>            :          *      =&gt;</a>
+<a name="217"><span class="lineNum">     217 </span>            :          *      G - grps(A) &lt;= G + delta - ncpu(A)</a>
+<a name="218"><span class="lineNum">     218 </span>            :          *      =&gt;</a>
+<a name="219"><span class="lineNum">     219 </span>            :          *      grps(B) &lt;= N - ncpu(A)</a>
+<a name="220"><span class="lineNum">     220 </span>            :          *      =&gt;</a>
+<a name="221"><span class="lineNum">     221 </span>            :          *      grps(B) &lt;= cpu(B)</a>
+<a name="222"><span class="lineNum">     222 </span>            :          *</a>
+<a name="223"><span class="lineNum">     223 </span>            :          * For nodes &gt;= 3, it can be thought as one node and another big</a>
+<a name="224"><span class="lineNum">     224 </span>            :          * node given that is exactly what this algorithm is implemented,</a>
+<a name="225"><span class="lineNum">     225 </span>            :          * and we always re-calculate 'remaining_ncpus' &amp; 'numgrps', and</a>
+<a name="226"><span class="lineNum">     226 </span>            :          * finally for each node X: grps(X) &lt;= ncpu(X).</a>
+<a name="227"><span class="lineNum">     227 </span>            :          *</a>
+<a name="228"><span class="lineNum">     228 </span>            :          */</a>
+<a name="229"><span class="lineNum">     229 </span>            :         for (n = 0; n &lt; nr_node_ids; n++) {</a>
+<a name="230"><span class="lineNum">     230 </span>            :                 unsigned ngroups, ncpus;</a>
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<a name="232"><span class="lineNum">     232 </span>            :                 if (node_groups[n].ncpus == UINT_MAX)</a>
+<a name="233"><span class="lineNum">     233 </span>            :                         continue;</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span>            :                 WARN_ON_ONCE(numgrps == 0);</a>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span>            :                 ncpus = node_groups[n].ncpus;</a>
+<a name="238"><span class="lineNum">     238 </span>            :                 ngroups = max_t(unsigned, 1,</a>
+<a name="239"><span class="lineNum">     239 </span>            :                                  numgrps * ncpus / remaining_ncpus);</a>
+<a name="240"><span class="lineNum">     240 </span>            :                 WARN_ON_ONCE(ngroups &gt; ncpus);</a>
+<a name="241"><span class="lineNum">     241 </span>            : </a>
+<a name="242"><span class="lineNum">     242 </span>            :                 node_groups[n].ngroups = ngroups;</a>
+<a name="243"><span class="lineNum">     243 </span>            : </a>
+<a name="244"><span class="lineNum">     244 </span>            :                 remaining_ncpus -= ncpus;</a>
+<a name="245"><span class="lineNum">     245 </span>            :                 numgrps -= ngroups;</a>
+<a name="246"><span class="lineNum">     246 </span>            :         }</a>
+<a name="247"><span class="lineNum">     247 </span>            : }</a>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<a name="249"><span class="lineNum">     249 </span>            : static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,</a>
+<a name="250"><span class="lineNum">     250 </span>            :                                cpumask_var_t *node_to_cpumask,</a>
+<a name="251"><span class="lineNum">     251 </span>            :                                const struct cpumask *cpu_mask,</a>
+<a name="252"><span class="lineNum">     252 </span>            :                                struct cpumask *nmsk, struct cpumask *masks)</a>
+<a name="253"><span class="lineNum">     253 </span>            : {</a>
+<a name="254"><span class="lineNum">     254 </span>            :         unsigned int i, n, nodes, cpus_per_grp, extra_grps, done = 0;</a>
+<a name="255"><span class="lineNum">     255 </span>            :         unsigned int last_grp = numgrps;</a>
+<a name="256"><span class="lineNum">     256 </span>            :         unsigned int curgrp = startgrp;</a>
+<a name="257"><span class="lineNum">     257 </span>            :         nodemask_t nodemsk = NODE_MASK_NONE;</a>
+<a name="258"><span class="lineNum">     258 </span>            :         struct node_groups *node_groups;</a>
+<a name="259"><span class="lineNum">     259 </span>            : </a>
+<a name="260"><span class="lineNum">     260 </span>            :         if (cpumask_empty(cpu_mask))</a>
+<a name="261"><span class="lineNum">     261 </span>            :                 return 0;</a>
+<a name="262"><span class="lineNum">     262 </span>            : </a>
+<a name="263"><span class="lineNum">     263 </span>            :         nodes = get_nodes_in_cpumask(node_to_cpumask, cpu_mask, &amp;nodemsk);</a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span>            :         /*</a>
+<a name="266"><span class="lineNum">     266 </span>            :          * If the number of nodes in the mask is greater than or equal the</a>
+<a name="267"><span class="lineNum">     267 </span>            :          * number of groups we just spread the groups across the nodes.</a>
+<a name="268"><span class="lineNum">     268 </span>            :          */</a>
+<a name="269"><span class="lineNum">     269 </span>            :         if (numgrps &lt;= nodes) {</a>
+<a name="270"><span class="lineNum">     270 </span>            :                 for_each_node_mask(n, nodemsk) {</a>
+<a name="271"><span class="lineNum">     271 </span>            :                         /* Ensure that only CPUs which are in both masks are set */</a>
+<a name="272"><span class="lineNum">     272 </span>            :                         cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);</a>
+<a name="273"><span class="lineNum">     273 </span>            :                         cpumask_or(&amp;masks[curgrp], &amp;masks[curgrp], nmsk);</a>
+<a name="274"><span class="lineNum">     274 </span>            :                         if (++curgrp == last_grp)</a>
+<a name="275"><span class="lineNum">     275 </span>            :                                 curgrp = 0;</a>
+<a name="276"><span class="lineNum">     276 </span>            :                 }</a>
+<a name="277"><span class="lineNum">     277 </span>            :                 return numgrps;</a>
+<a name="278"><span class="lineNum">     278 </span>            :         }</a>
+<a name="279"><span class="lineNum">     279 </span>            : </a>
+<a name="280"><span class="lineNum">     280 </span>            :         node_groups = kcalloc(nr_node_ids,</a>
+<a name="281"><span class="lineNum">     281 </span>            :                                sizeof(struct node_groups),</a>
+<a name="282"><span class="lineNum">     282 </span>            :                                GFP_KERNEL);</a>
+<a name="283"><span class="lineNum">     283 </span>            :         if (!node_groups)</a>
+<a name="284"><span class="lineNum">     284 </span>            :                 return -ENOMEM;</a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span>            :         /* allocate group number for each node */</a>
+<a name="287"><span class="lineNum">     287 </span>            :         alloc_nodes_groups(numgrps, node_to_cpumask, cpu_mask,</a>
+<a name="288"><span class="lineNum">     288 </span>            :                            nodemsk, nmsk, node_groups);</a>
+<a name="289"><span class="lineNum">     289 </span>            :         for (i = 0; i &lt; nr_node_ids; i++) {</a>
+<a name="290"><span class="lineNum">     290 </span>            :                 unsigned int ncpus, v;</a>
+<a name="291"><span class="lineNum">     291 </span>            :                 struct node_groups *nv = &amp;node_groups[i];</a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            :                 if (nv-&gt;ngroups == UINT_MAX)</a>
+<a name="294"><span class="lineNum">     294 </span>            :                         continue;</a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span>            :                 /* Get the cpus on this node which are in the mask */</a>
+<a name="297"><span class="lineNum">     297 </span>            :                 cpumask_and(nmsk, cpu_mask, node_to_cpumask[nv-&gt;id]);</a>
+<a name="298"><span class="lineNum">     298 </span>            :                 ncpus = cpumask_weight(nmsk);</a>
+<a name="299"><span class="lineNum">     299 </span>            :                 if (!ncpus)</a>
+<a name="300"><span class="lineNum">     300 </span>            :                         continue;</a>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span>            :                 WARN_ON_ONCE(nv-&gt;ngroups &gt; ncpus);</a>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<a name="304"><span class="lineNum">     304 </span>            :                 /* Account for rounding errors */</a>
+<a name="305"><span class="lineNum">     305 </span>            :                 extra_grps = ncpus - nv-&gt;ngroups * (ncpus / nv-&gt;ngroups);</a>
+<a name="306"><span class="lineNum">     306 </span>            : </a>
+<a name="307"><span class="lineNum">     307 </span>            :                 /* Spread allocated groups on CPUs of the current node */</a>
+<a name="308"><span class="lineNum">     308 </span>            :                 for (v = 0; v &lt; nv-&gt;ngroups; v++, curgrp++) {</a>
+<a name="309"><span class="lineNum">     309 </span>            :                         cpus_per_grp = ncpus / nv-&gt;ngroups;</a>
+<a name="310"><span class="lineNum">     310 </span>            : </a>
+<a name="311"><span class="lineNum">     311 </span>            :                         /* Account for extra groups to compensate rounding errors */</a>
+<a name="312"><span class="lineNum">     312 </span>            :                         if (extra_grps) {</a>
+<a name="313"><span class="lineNum">     313 </span>            :                                 cpus_per_grp++;</a>
+<a name="314"><span class="lineNum">     314 </span>            :                                 --extra_grps;</a>
+<a name="315"><span class="lineNum">     315 </span>            :                         }</a>
+<a name="316"><span class="lineNum">     316 </span>            : </a>
+<a name="317"><span class="lineNum">     317 </span>            :                         /*</a>
+<a name="318"><span class="lineNum">     318 </span>            :                          * wrapping has to be considered given 'startgrp'</a>
+<a name="319"><span class="lineNum">     319 </span>            :                          * may start anywhere</a>
+<a name="320"><span class="lineNum">     320 </span>            :                          */</a>
+<a name="321"><span class="lineNum">     321 </span>            :                         if (curgrp &gt;= last_grp)</a>
+<a name="322"><span class="lineNum">     322 </span>            :                                 curgrp = 0;</a>
+<a name="323"><span class="lineNum">     323 </span>            :                         grp_spread_init_one(&amp;masks[curgrp], nmsk,</a>
+<a name="324"><span class="lineNum">     324 </span>            :                                                 cpus_per_grp);</a>
+<a name="325"><span class="lineNum">     325 </span>            :                 }</a>
+<a name="326"><span class="lineNum">     326 </span>            :                 done += nv-&gt;ngroups;</a>
+<a name="327"><span class="lineNum">     327 </span>            :         }</a>
+<a name="328"><span class="lineNum">     328 </span>            :         kfree(node_groups);</a>
+<a name="329"><span class="lineNum">     329 </span>            :         return done;</a>
+<a name="330"><span class="lineNum">     330 </span>            : }</a>
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<a name="332"><span class="lineNum">     332 </span>            : /**</a>
+<a name="333"><span class="lineNum">     333 </span>            :  * group_cpus_evenly - Group all CPUs evenly per NUMA/CPU locality</a>
+<a name="334"><span class="lineNum">     334 </span>            :  * @numgrps: number of groups</a>
+<a name="335"><span class="lineNum">     335 </span>            :  *</a>
+<a name="336"><span class="lineNum">     336 </span>            :  * Return: cpumask array if successful, NULL otherwise. And each element</a>
+<a name="337"><span class="lineNum">     337 </span>            :  * includes CPUs assigned to this group</a>
+<a name="338"><span class="lineNum">     338 </span>            :  *</a>
+<a name="339"><span class="lineNum">     339 </span>            :  * Try to put close CPUs from viewpoint of CPU and NUMA locality into</a>
+<a name="340"><span class="lineNum">     340 </span>            :  * same group, and run two-stage grouping:</a>
+<a name="341"><span class="lineNum">     341 </span>            :  *      1) allocate present CPUs on these groups evenly first</a>
+<a name="342"><span class="lineNum">     342 </span>            :  *      2) allocate other possible CPUs on these groups evenly</a>
+<a name="343"><span class="lineNum">     343 </span>            :  *</a>
+<a name="344"><span class="lineNum">     344 </span>            :  * We guarantee in the resulted grouping that all CPUs are covered, and</a>
+<a name="345"><span class="lineNum">     345 </span>            :  * no same CPU is assigned to multiple groups</a>
+<a name="346"><span class="lineNum">     346 </span>            :  */</a>
+<a name="347"><span class="lineNum">     347 </span>            : struct cpumask *group_cpus_evenly(unsigned int numgrps)</a>
+<a name="348"><span class="lineNum">     348 </span>            : {</a>
+<a name="349"><span class="lineNum">     349 </span>            :         unsigned int curgrp = 0, nr_present = 0, nr_others = 0;</a>
+<a name="350"><span class="lineNum">     350 </span>            :         cpumask_var_t *node_to_cpumask;</a>
+<a name="351"><span class="lineNum">     351 </span>            :         cpumask_var_t nmsk, npresmsk;</a>
+<a name="352"><span class="lineNum">     352 </span>            :         int ret = -ENOMEM;</a>
+<a name="353"><span class="lineNum">     353 </span>            :         struct cpumask *masks = NULL;</a>
+<a name="354"><span class="lineNum">     354 </span>            : </a>
+<a name="355"><span class="lineNum">     355 </span>            :         if (!zalloc_cpumask_var(&amp;nmsk, GFP_KERNEL))</a>
+<a name="356"><span class="lineNum">     356 </span>            :                 return NULL;</a>
+<a name="357"><span class="lineNum">     357 </span>            : </a>
+<a name="358"><span class="lineNum">     358 </span>            :         if (!zalloc_cpumask_var(&amp;npresmsk, GFP_KERNEL))</a>
+<a name="359"><span class="lineNum">     359 </span>            :                 goto fail_nmsk;</a>
+<a name="360"><span class="lineNum">     360 </span>            : </a>
+<a name="361"><span class="lineNum">     361 </span>            :         node_to_cpumask = alloc_node_to_cpumask();</a>
+<a name="362"><span class="lineNum">     362 </span>            :         if (!node_to_cpumask)</a>
+<a name="363"><span class="lineNum">     363 </span>            :                 goto fail_npresmsk;</a>
+<a name="364"><span class="lineNum">     364 </span>            : </a>
+<a name="365"><span class="lineNum">     365 </span>            :         masks = kcalloc(numgrps, sizeof(*masks), GFP_KERNEL);</a>
+<a name="366"><span class="lineNum">     366 </span>            :         if (!masks)</a>
+<a name="367"><span class="lineNum">     367 </span>            :                 goto fail_node_to_cpumask;</a>
+<a name="368"><span class="lineNum">     368 </span>            : </a>
+<a name="369"><span class="lineNum">     369 </span>            :         /* Stabilize the cpumasks */</a>
+<a name="370"><span class="lineNum">     370 </span>            :         cpus_read_lock();</a>
+<a name="371"><span class="lineNum">     371 </span>            :         build_node_to_cpumask(node_to_cpumask);</a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span>            :         /* grouping present CPUs first */</a>
+<a name="374"><span class="lineNum">     374 </span>            :         ret = __group_cpus_evenly(curgrp, numgrps, node_to_cpumask,</a>
+<a name="375"><span class="lineNum">     375 </span>            :                                   cpu_present_mask, nmsk, masks);</a>
+<a name="376"><span class="lineNum">     376 </span>            :         if (ret &lt; 0)</a>
+<a name="377"><span class="lineNum">     377 </span>            :                 goto fail_build_affinity;</a>
+<a name="378"><span class="lineNum">     378 </span>            :         nr_present = ret;</a>
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<a name="380"><span class="lineNum">     380 </span>            :         /*</a>
+<a name="381"><span class="lineNum">     381 </span>            :          * Allocate non present CPUs starting from the next group to be</a>
+<a name="382"><span class="lineNum">     382 </span>            :          * handled. If the grouping of present CPUs already exhausted the</a>
+<a name="383"><span class="lineNum">     383 </span>            :          * group space, assign the non present CPUs to the already</a>
+<a name="384"><span class="lineNum">     384 </span>            :          * allocated out groups.</a>
+<a name="385"><span class="lineNum">     385 </span>            :          */</a>
+<a name="386"><span class="lineNum">     386 </span>            :         if (nr_present &gt;= numgrps)</a>
+<a name="387"><span class="lineNum">     387 </span>            :                 curgrp = 0;</a>
+<a name="388"><span class="lineNum">     388 </span>            :         else</a>
+<a name="389"><span class="lineNum">     389 </span>            :                 curgrp = nr_present;</a>
+<a name="390"><span class="lineNum">     390 </span>            :         cpumask_andnot(npresmsk, cpu_possible_mask, cpu_present_mask);</a>
+<a name="391"><span class="lineNum">     391 </span>            :         ret = __group_cpus_evenly(curgrp, numgrps, node_to_cpumask,</a>
+<a name="392"><span class="lineNum">     392 </span>            :                                   npresmsk, nmsk, masks);</a>
+<a name="393"><span class="lineNum">     393 </span>            :         if (ret &gt;= 0)</a>
+<a name="394"><span class="lineNum">     394 </span>            :                 nr_others = ret;</a>
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<a name="396"><span class="lineNum">     396 </span>            :  fail_build_affinity:</a>
+<a name="397"><span class="lineNum">     397 </span>            :         cpus_read_unlock();</a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span>            :         if (ret &gt;= 0)</a>
+<a name="400"><span class="lineNum">     400 </span>            :                 WARN_ON(nr_present + nr_others &lt; numgrps);</a>
+<a name="401"><span class="lineNum">     401 </span>            : </a>
+<a name="402"><span class="lineNum">     402 </span>            :  fail_node_to_cpumask:</a>
+<a name="403"><span class="lineNum">     403 </span>            :         free_node_to_cpumask(node_to_cpumask);</a>
+<a name="404"><span class="lineNum">     404 </span>            : </a>
+<a name="405"><span class="lineNum">     405 </span>            :  fail_npresmsk:</a>
+<a name="406"><span class="lineNum">     406 </span>            :         free_cpumask_var(npresmsk);</a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span>            :  fail_nmsk:</a>
+<a name="409"><span class="lineNum">     409 </span>            :         free_cpumask_var(nmsk);</a>
+<a name="410"><span class="lineNum">     410 </span>            :         if (ret &lt; 0) {</a>
+<a name="411"><span class="lineNum">     411 </span>            :                 kfree(masks);</a>
+<a name="412"><span class="lineNum">     412 </span>            :                 return NULL;</a>
+<a name="413"><span class="lineNum">     413 </span>            :         }</a>
+<a name="414"><span class="lineNum">     414 </span>            :         return masks;</a>
+<a name="415"><span class="lineNum">     415 </span>            : }</a>
+<a name="416"><span class="lineNum">     416 </span>            : #else /* CONFIG_SMP */</a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineNoCov">          0 : struct cpumask *group_cpus_evenly(unsigned int numgrps)</span></a>
+<a name="418"><span class="lineNum">     418 </span>            : {</a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 :         struct cpumask *masks = kcalloc(numgrps, sizeof(*masks), GFP_KERNEL);</span></a>
+<a name="420"><span class="lineNum">     420 </span>            : </a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :         if (!masks)</span></a>
+<a name="422"><span class="lineNum">     422 </span>            :                 return NULL;</a>
+<a name="423"><span class="lineNum">     423 </span>            : </a>
+<a name="424"><span class="lineNum">     424 </span>            :         /* assign all CPUs(cpu 0) to the 1st group only */</a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :         cpumask_copy(&amp;masks[0], cpu_possible_mask);</span></a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineNoCov">          0 :         return masks;</span></a>
+<a name="427"><span class="lineNum">     427 </span>            : }</a>
+<a name="428"><span class="lineNum">     428 </span>            : #endif /* CONFIG_SMP */</a>
+<a name="429"><span class="lineNum">     429 </span>            : EXPORT_SYMBOL_GPL(group_cpus_evenly);</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
